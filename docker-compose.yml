@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16.6
+    container_name: postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mendel_core
+    volumes:
+      - ./server/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mendel
+
+  webserver:
+    build:
+      context: ./server
+      target: dev  # or "builder" for prod
+    container_name: webserver
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgres://admin:password@postgres:5432/mendel_core
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 2s
+      retries: 3
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./server:/app
+    networks:
+      - mendel
+    profiles:
+      - dev
+
+  # web:
+  #   image: node:20
+  #   container_name: web
+  #   working_dir: /app
+  #   volumes:
+  #     - ./web:/app
+  #     - /app/node_modules
+  #   ports:
+  #     - "5173:5173"
+  #   command: ["npm", "run", "dev"]
+  #   depends_on:
+  #     - webserver
+  #   networks:
+  #     - mendel
+
+volumes:
+  postgres_data:
+
+networks:
+  mendel:
