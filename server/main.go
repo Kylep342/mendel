@@ -1,31 +1,17 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
+	"os"
 
-	"github.com/gorilla/mux"
-	_ "github.com/lib/pq"
+	"github.com/kylep342/mendel/src/app"
 )
 
 func main() {
-	// db, err := sql.Open("mysql", "username:password@(127.0.0.1:3306)/dbname?parseTime=true")
+	if os.Getenv("SERVER_PORT") == "" {
+		panic("env variable 'SERVER_PORT' must be set")
+	}
 
-	r := mux.NewRouter()
-
-	// api := r.PathPrefix("/api")
-
-	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintln(w, "OK")
-	})
-
-	r.HandleFunc("/test/{thing}", func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		thing := vars["thing"]
-
-		fmt.Fprintf(w, "TEST VALUE: %s \n", thing)
-	})
-
-	http.ListenAndServe(":8080", r)
+	a := app.App{}
+	a.Initialize()
+	a.Run()
 }

@@ -14,9 +14,9 @@ func RespondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	_, _ = w.Write(response)
 }
 
-// RespondWithMessage is a wrapper function for responding on a successful request
-func RespondWithMessage(w http.ResponseWriter, code int, message string) {
-	RespondWithJSON(w, code, map[string]string{"message": message})
+// RespondWithData is a wrapper function for responding on a successful request
+func RespondWithData(w http.ResponseWriter, code int, data string) {
+	RespondWithJSON(w, code, map[string]string{"data": data})
 }
 
 // RespondWithError is a wrapper function for responding on an unsuccessful request

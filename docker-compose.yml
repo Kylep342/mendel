@@ -20,7 +20,7 @@ services:
   webserver:
     build:
       context: ./server
-      target: dev  # or "builder" for prod
+      target: dev
     container_name: webserver
     depends_on:
       - postgres
@@ -28,7 +28,7 @@ services:
       - DATABASE_URL=postgres://admin:password@postgres:5432/mendel_core
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 10s
+      interval: 60s
       timeout: 2s
       retries: 3
     ports:

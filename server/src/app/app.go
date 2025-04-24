@@ -10,10 +10,13 @@ import (
 
 	"github.com/go-redis/redis"
 
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5"
 
 	_ "github.com/jackc/pgx/stdlib"
+
+	"src/responses"
 )
 
 // global config struct holding database connection info
@@ -45,25 +48,24 @@ func (conf *config) configure() {
 var conf = config{}
 
 // App contains necessary components to run the webserver
-// Router is a pointer to a mux Router
+// Router is a pointer to a chi router
 // Logger is an http handler
 // DB is a pointer to a db
 // Redis is a pointer to a redis client
 type App struct {
-	Router *mux.Router
-	Logger http.Handler
+	Router chi.Router
 	DB     *sql.DB
 	Redis  *redis.Client
 }
 
 // InitializeRoutes creates all endpoints for the api
 func (a *App) InitializeRoutes() {
-	// a.Router.HandleFunc("/api/forecast/detailed", a.DetailedForecastHandler).Queries("city", "{city:[a-zA-Z+]+}", "state", "{state:[a-zA-Z+]+}", "period", "{period:[a-zA-Z+]+}").Methods("GET")
-	// a.Router.HandleFunc("/api/forecast/detailed", a.DetailedForecastHandler).Queries("city", "{city:[a-zA-Z+]+}", "state", "{state:[a-zA-Z+]+}").Methods("GET")
-	// a.Router.HandleFunc("/api/forecast/detailed/random", a.RandomDetailedForecastHandler).Methods("GET")
-	// a.Router.HandleFunc("/api/forecast/hourly", a.HourlyForecastHandler).Queries("city", "{city:[a-zA-Z+]+}", "state", "{state:[a-zA-Z+]+}", "hours", "{hours:[0-9]+}").Methods("GET")
-	// a.Router.HandleFunc("/api/forecast/hourly", a.HourlyForecastHandler).Queries("city", "{city:[a-zA-Z+]+}", "state", "{state:[a-zA-Z+]+}").Methods("GET")
-	a.Router.NotFoundHandler = http.HandlerFunc(a.Custom404Handler)
+	a.Router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		responses.RespondWithData(w, http.StatusOK, "mendel is alive!")
+	})
+	a.Router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		responses.RespondWithData(w, http.StatusOK, "ok")
+	})
 }
 
 // Initialize creates the application as a whole
@@ -81,18 +83,21 @@ func (a *App) Initialize() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	a.Redis = redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", conf.redisHost, conf.redisPort),
 		Password: conf.redisPassword,
 		DB:       conf.redisDb,
 	})
-	a.Router = mux.NewRouter()
-	a.Logger = handlers.CombinedLoggingHandler(os.Stdout, a.Router)
+
+	a.Router = chi.NewRouter()
+	a.Router.Use(middleware.Logger)
+
 	a.InitializeRoutes()
 }
 
 // Run starts the app to listen on the port specitied by the env variable SERVER_PORT
 func (a *App) Run() {
 	port := fmt.Sprintf(":%s", os.Getenv("SERVER_PORT"))
-	log.Fatal(http.ListenAndServe(port, a.Logger))
+	log.Fatal(http.ListenAndServe(port, a.Router))
 }
