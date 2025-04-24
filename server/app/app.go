@@ -16,7 +16,7 @@ import (
 
 	_ "github.com/jackc/pgx/stdlib"
 
-	"src/responses"
+	"responses"
 )
 
 // global config struct holding database connection info

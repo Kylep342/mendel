@@ -3,7 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/kylep342/mendel/server/src/app"
+	"github.com/Kylep342/mendel/app"
+	// server/src/app/app.go
 )
 
 func main() {
