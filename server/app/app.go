@@ -8,15 +8,12 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/go-redis/redis"
-
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/go-chi/chi/v5"
 
 	_ "github.com/jackc/pgx/stdlib"
 
-	"responses"
+	"github.com/Kylep342/mendel/responses"
 )
 
 // global config struct holding database connection info
@@ -55,7 +52,7 @@ var conf = config{}
 type App struct {
 	Router chi.Router
 	DB     *sql.DB
-	Redis  *redis.Client
+	// Redis  *redis.Client
 }
 
 // InitializeRoutes creates all endpoints for the api
@@ -84,11 +81,11 @@ func (a *App) Initialize() {
 		log.Fatal(err)
 	}
 
-	a.Redis = redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%s", conf.redisHost, conf.redisPort),
-		Password: conf.redisPassword,
-		DB:       conf.redisDb,
-	})
+	// a.Redis = redis.NewClient(&redis.Options{
+	// 	Addr:     fmt.Sprintf("%s:%s", conf.redisHost, conf.redisPort),
+	// 	Password: conf.redisPassword,
+	// 	DB:       conf.redisDb,
+	// })
 
 	a.Router = chi.NewRouter()
 	a.Router.Use(middleware.Logger)

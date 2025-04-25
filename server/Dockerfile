@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
 
-#############################
-# Development build with Air
-#############################
+##############################
+# Development build with Air #
+##############################
 FROM golang:1.23-alpine AS dev
 
 RUN apk add --no-cache git curl
@@ -22,9 +22,9 @@ USER appuser
 
 CMD ["air"]
 
-###########################
-# Production build
-###########################
+####################
+# Production build #
+####################
 FROM golang:1.23-alpine AS builder
 
 WORKDIR /app

@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"github.com/Kylep342/mendel/app"
-	// server/src/app/app.go
 )
 
 func main() {
