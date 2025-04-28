@@ -24,7 +24,7 @@ CREATE TABLE mendel_core.users (
 BEGIN;
 DROP TRIGGER IF EXISTS users_update_timestamp ON users;
 
-CREATE TRIGGER geocodex_update_timestamp
+CREATE TRIGGER users_update_timestamp
 BEFORE UPDATE ON mendel_core.users
 FOR EACH ROW
 EXECUTE PROCEDURE trigger_update_timestamp();

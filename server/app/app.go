@@ -11,9 +11,11 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 
-	_ "github.com/jackc/pgx/stdlib"
+	_ "github.com/lib/pq"
 
 	"github.com/Kylep342/mendel/responses"
+	"github.com/kylep342/mendel/db"
+	"github.com/kylep342/mendel/handlers"
 )
 
 // global config struct holding database connection info
@@ -62,6 +64,17 @@ func (a *App) InitializeRoutes() {
 	})
 	a.Router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		responses.RespondWithData(w, http.StatusOK, "ok")
+	})
+
+	psRepo := db.NewPlantSpeciesTable(a.DB)
+
+	psHandler := handlers.NewPlantSpeciesHandler(psRepo)
+
+	a.Router.Route("/species", func(r chi.Router) {
+		r.Post("/", psHandler.CreatePlantSpecies)
+		r.Get("/{id}", psHandler.GetPlantSpecies)
+		r.Put("/{id}", psHandler.UpdatePlantSpecies)
+		r.Delete("/{id}", psHandler.DeletePlantSpecies)
 	})
 }
 

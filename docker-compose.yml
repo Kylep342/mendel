@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: mendel_core
     volumes:
-      - ./server/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./server/db/migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data
     networks:
       - mendel
