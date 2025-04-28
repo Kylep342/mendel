@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/kylep342/mendel/model"
+	"github.com/Kylep342/mendel/models"
 )
 
 type PlantSpeciesTable struct {
@@ -12,7 +12,7 @@ type PlantSpeciesTable struct {
 }
 
 // insert
-func (repo *PlantSpeciesTable) Create(ps *model.PlantSpecies) error {
+func (repo *PlantSpeciesTable) Create(ps *models.PlantSpecies) error {
 	query := `
 		INSERT INTO plant_species (name, taxon)
 		VALUES ($1, $2)
@@ -23,16 +23,16 @@ func (repo *PlantSpeciesTable) Create(ps *model.PlantSpecies) error {
 }
 
 // read all
-func (repo *PlantSpeciesTable) GetAll() ([]model.PlantSpecies, error) {
+func (repo *PlantSpeciesTable) GetAll() ([]models.PlantSpecies, error) {
 	rows, err := repo.DB.Query(`SELECT id, name, taxon, created_at, updated_at FROM plant_species`)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var speciesList []model.PlantSpecies
+	var speciesList []models.PlantSpecies
 	for rows.Next() {
-		var ps model.PlantSpecies
+		var ps models.PlantSpecies
 		if err := rows.Scan(&ps.Id, &ps.Name, &ps.Taxon, &ps.CreatedAt, &ps.UpdatedAt); err != nil {
 			return nil, err
 		}
@@ -42,8 +42,8 @@ func (repo *PlantSpeciesTable) GetAll() ([]model.PlantSpecies, error) {
 }
 
 // read one
-func (repo *PlantSpeciesTable) GetByID(id string) (*model.PlantSpecies, error) {
-	var ps model.PlantSpecies
+func (repo *PlantSpeciesTable) GetByID(id string) (*models.PlantSpecies, error) {
+	var ps models.PlantSpecies
 	err := repo.DB.QueryRow(`
 		SELECT id, name, taxon, created_at, updated_at FROM plant_species WHERE id = $1
 	`, id).Scan(&ps.Id, &ps.Name, &ps.Taxon, &ps.CreatedAt, &ps.UpdatedAt)
@@ -55,7 +55,7 @@ func (repo *PlantSpeciesTable) GetByID(id string) (*model.PlantSpecies, error) {
 }
 
 // update
-func (repo *PlantSpeciesTable) Update(ps *model.PlantSpecies) error {
+func (repo *PlantSpeciesTable) Update(ps *models.PlantSpecies) error {
 	_, err := repo.DB.Exec(`
 		UPDATE plant_species
 		SET name = $1, taxon = $2, updated_at = $3

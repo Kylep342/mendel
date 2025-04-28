@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/Kylep342/mendel/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/kylep342/mendel/db"
-	"github.com/kylep342/mendel/model"
 )
 
 type PlantSpeciesHandler struct {
@@ -34,7 +34,7 @@ func (h *PlantSpeciesHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *PlantSpeciesHandler) Create(w http.ResponseWriter, r *http.Request) {
-	var ps model.PlantSpecies
+	var ps models.PlantSpecies
 	if err := json.NewDecoder(r.Body).Decode(&ps); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -63,7 +63,7 @@ func (h *PlantSpeciesHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 func (h *PlantSpeciesHandler) Update(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	var ps model.PlantSpecies
+	var ps models.PlantSpecies
 	if err := json.NewDecoder(r.Body).Decode(&ps); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
