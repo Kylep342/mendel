@@ -34,3 +34,5 @@ src/assets/built.css
 terraform.tfstate*
 
 scratch
+tmp
+server/tmp

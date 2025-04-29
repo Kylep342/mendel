@@ -22,9 +22,9 @@ func (repo *PlantSpeciesTable) Create(ps *models.PlantSpecies) error {
 	query := `
 		INSERT INTO plant_species (name, taxon)
 		VALUES ($1, $2)
-		returning id 
+		returning id, created_at, updated_at
 	`
-	err := repo.DB.QueryRow(query, ps.Name, ps.Taxon).Scan(&ps.Id)
+	err := repo.DB.QueryRow(query, ps.Name, ps.Taxon).Scan(&ps.Id, &ps.CreatedAt, &ps.UpdatedAt)
 	return err
 }
 
