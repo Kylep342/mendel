@@ -6,11 +6,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_HOST: postgres
       POSTGRES_USERNAME: admin
       POSTGRES_PASSWORD: password
       POSTGRES_DB: mendel_core
-      POSTGRES_PORT: 5432
     volumes:
       - ./server/db/migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data
@@ -25,8 +23,8 @@ services:
     depends_on:
       - postgres
     environment:
-      - SERVER_PORT=8080
-      - DATABASE_URL=postgres://admin:password@postgres:5432/mendel_core
+      SERVER_PORT: 8080
+      DATABASE_URL: postgres://admin:password@postgres:5432/mendel_core
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 60s

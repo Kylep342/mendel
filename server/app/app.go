@@ -19,11 +19,7 @@ import (
 
 // global config struct holding database connection info
 type config struct {
-	sqlUsername string
-	sqlPassword string
-	sqlHost     string
-	sqlPort     string
-	sqlDbName   string
+	sqlUrl string
 	// redisPassword string
 	// redisHost     string
 	// redisPort     string
@@ -32,11 +28,7 @@ type config struct {
 
 // method to initialize config struct from environment variables
 func (conf *config) configure() {
-	conf.sqlUsername = os.Getenv("POSTGRES_USERNAME")
-	conf.sqlPassword = os.Getenv("POSTGRES_PASSWORD")
-	conf.sqlHost = os.Getenv("POSTGRES_HOST")
-	conf.sqlPort = os.Getenv("POSTGRES_PORT")
-	conf.sqlDbName = os.Getenv("POSTGRES_DB")
+	conf.sqlUrl = os.Getenv("DATABASE_URL")
 	// conf.redisPassword = os.Getenv("REDIS_PASSWORD")
 	// conf.redisHost = os.Getenv("REDIS_HOST")
 	// conf.redisPort = os.Getenv("REDIS_PORT")
@@ -82,14 +74,8 @@ func (a *App) InitializeRoutes() {
 func (a *App) Initialize() {
 	var err error
 	conf.configure()
-	sqlDataSource := fmt.Sprintf(
-		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		conf.sqlUsername,
-		conf.sqlPassword,
-		conf.sqlHost,
-		conf.sqlPort,
-		conf.sqlDbName)
-	a.DB, err = sql.Open("pgx", sqlDataSource)
+	a.DB, err = sql.Open("pgx", conf.sqlUrl)
+
 	if err != nil {
 		log.Fatal(err)
 	}
