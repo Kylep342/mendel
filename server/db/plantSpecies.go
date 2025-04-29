@@ -4,11 +4,17 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/Kylep342/mendel/models"
+	"github.com/kylep342/mendel/models"
 )
 
 type PlantSpeciesTable struct {
 	DB *sql.DB
+}
+
+func NewPlantSpeciesTable(db *sql.DB) *PlantSpeciesTable {
+	return &PlantSpeciesTable{
+		DB: db,
+	}
 }
 
 // insert
@@ -16,9 +22,9 @@ func (repo *PlantSpeciesTable) Create(ps *models.PlantSpecies) error {
 	query := `
 		INSERT INTO plant_species (name, taxon)
 		VALUES ($1, $2)
-		returning id
+		returning id 
 	`
-	err := repo.DB.QueryRow(query, ps.Name, ps.Taxon).Scan(&ps.Id, &ps.CreatedAt, &ps.UpdatedAt)
+	err := repo.DB.QueryRow(query, ps.Name, ps.Taxon).Scan(&ps.Id)
 	return err
 }
 

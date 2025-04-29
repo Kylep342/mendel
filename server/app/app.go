@@ -6,29 +6,28 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 
-	_ "github.com/lib/pq"
+	_ "github.com/jackc/pgx/stdlib"
 
-	"github.com/Kylep342/mendel/responses"
 	"github.com/kylep342/mendel/db"
 	"github.com/kylep342/mendel/handlers"
+	"github.com/kylep342/mendel/responses"
 )
 
 // global config struct holding database connection info
 type config struct {
-	sqlUsername   string
-	sqlPassword   string
-	sqlHost       string
-	sqlPort       string
-	sqlDbName     string
-	redisPassword string
-	redisHost     string
-	redisPort     string
-	redisDb       int
+	sqlUsername string
+	sqlPassword string
+	sqlHost     string
+	sqlPort     string
+	sqlDbName   string
+	// redisPassword string
+	// redisHost     string
+	// redisPort     string
+	// redisDb       int
 }
 
 // method to initialize config struct from environment variables
@@ -38,10 +37,10 @@ func (conf *config) configure() {
 	conf.sqlHost = os.Getenv("POSTGRES_HOST")
 	conf.sqlPort = os.Getenv("POSTGRES_PORT")
 	conf.sqlDbName = os.Getenv("POSTGRES_DB")
-	conf.redisPassword = os.Getenv("REDIS_PASSWORD")
-	conf.redisHost = os.Getenv("REDIS_HOST")
-	conf.redisPort = os.Getenv("REDIS_PORT")
-	conf.redisDb, _ = strconv.Atoi(os.Getenv("REDIS_DB"))
+	// conf.redisPassword = os.Getenv("REDIS_PASSWORD")
+	// conf.redisHost = os.Getenv("REDIS_HOST")
+	// conf.redisPort = os.Getenv("REDIS_PORT")
+	// conf.redisDb, _ = strconv.Atoi(os.Getenv("REDIS_DB"))
 }
 
 var conf = config{}
@@ -70,11 +69,12 @@ func (a *App) InitializeRoutes() {
 
 	psHandler := handlers.NewPlantSpeciesHandler(psRepo)
 
-	a.Router.Route("/species", func(r chi.Router) {
-		r.Post("/", psHandler.CreatePlantSpecies)
-		r.Get("/{id}", psHandler.GetPlantSpecies)
-		r.Put("/{id}", psHandler.UpdatePlantSpecies)
-		r.Delete("/{id}", psHandler.DeletePlantSpecies)
+	a.Router.Route("/plant-species", func(r chi.Router) {
+		r.Post("/", psHandler.Create)
+		// r.Get("/", psHandler.GetAll)
+		r.Get("/{id}", psHandler.GetByID)
+		r.Put("/{id}", psHandler.Update)
+		r.Delete("/{id}", psHandler.Delete)
 	})
 }
 
@@ -92,6 +92,10 @@ func (a *App) Initialize() {
 	a.DB, err = sql.Open("pgx", sqlDataSource)
 	if err != nil {
 		log.Fatal(err)
+	}
+	_, err = a.DB.Exec("SET search_path TO mendel_core")
+	if err != nil {
+		log.Fatal(fmt.Errorf("failed to set search_path: %w", err))
 	}
 
 	// a.Redis = redis.NewClient(&redis.Options{

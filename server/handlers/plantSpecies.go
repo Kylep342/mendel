@@ -5,13 +5,19 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/Kylep342/mendel/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/kylep342/mendel/db"
+	"github.com/kylep342/mendel/models"
 )
 
 type PlantSpeciesHandler struct {
-	Repo *db.PlantSpeciesTable
+	Table *db.PlantSpeciesTable
+}
+
+func NewPlantSpeciesHandler(table *db.PlantSpeciesTable) *PlantSpeciesHandler {
+	return &PlantSpeciesHandler{
+		Table: table,
+	}
 }
 
 func (h *PlantSpeciesHandler) RegisterRoutes(r chi.Router) {
@@ -25,7 +31,7 @@ func (h *PlantSpeciesHandler) RegisterRoutes(r chi.Router) {
 }
 
 func (h *PlantSpeciesHandler) GetAll(w http.ResponseWriter, r *http.Request) {
-	species, err := h.Repo.GetAll()
+	species, err := h.Table.GetAll()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -39,7 +45,7 @@ func (h *PlantSpeciesHandler) Create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if err := h.Repo.Create(&ps); err != nil {
+	if err := h.Table.Create(&ps); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -49,7 +55,7 @@ func (h *PlantSpeciesHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 func (h *PlantSpeciesHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	ps, err := h.Repo.GetByID(id)
+	ps, err := h.Table.GetByID(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "Not found", http.StatusNotFound)
@@ -69,7 +75,7 @@ func (h *PlantSpeciesHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	ps.Id = id
-	if err := h.Repo.Update(&ps); err != nil {
+	if err := h.Table.Update(&ps); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -78,7 +84,7 @@ func (h *PlantSpeciesHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 func (h *PlantSpeciesHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	if err := h.Repo.Delete(id); err != nil {
+	if err := h.Table.Delete(id); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/Kylep342/mendel/app"
+	"github.com/kylep342/mendel/app"
 )
 
 func main() {

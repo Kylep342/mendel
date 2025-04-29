@@ -6,9 +6,11 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: admin
+      POSTGRES_HOST: postgres
+      POSTGRES_USERNAME: admin
       POSTGRES_PASSWORD: password
       POSTGRES_DB: mendel_core
+      POSTGRES_PORT: 5432
     volumes:
       - ./server/db/migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data
