@@ -63,7 +63,7 @@ func (repo *PlantSpeciesTable) GetByID(id string) (*models.PlantSpecies, error) 
 func (repo *PlantSpeciesTable) Update(ps *models.PlantSpecies) error {
 	err := repo.DB.QueryRow(`
 		UPDATE plant_species
-		SET name = $1, taxon = $2, updated_at = now()
+		SET name = $1, taxon = $2
 		WHERE id = $3
 		RETURNING id, name, taxon, created_at, updated_at
 	`, ps.Name, ps.Taxon, ps.Id).Scan(
