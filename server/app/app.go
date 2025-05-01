@@ -27,7 +27,7 @@ type config struct {
 }
 
 // method to initialize config struct from environment variables
-func (conf *config) configure() {
+func (conf *config) Configure() {
 	conf.sqlUrl = os.Getenv("DATABASE_URL")
 	// conf.redisPassword = os.Getenv("REDIS_PASSWORD")
 	// conf.redisHost = os.Getenv("REDIS_HOST")
@@ -73,7 +73,7 @@ func (a *App) InitializeRoutes() {
 // Initialize creates the application as a whole
 func (a *App) Initialize() {
 	var err error
-	conf.configure()
+	conf.Configure()
 	a.DB, err = sql.Open("pgx", conf.sqlUrl)
 
 	if err != nil {

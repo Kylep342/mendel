@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"time"
 
 	"github.com/kylep342/mendel/models"
 )
@@ -62,11 +61,14 @@ func (repo *PlantSpeciesTable) GetByID(id string) (*models.PlantSpecies, error) 
 
 // update
 func (repo *PlantSpeciesTable) Update(ps *models.PlantSpecies) error {
-	_, err := repo.DB.Exec(`
+	err := repo.DB.QueryRow(`
 		UPDATE plant_species
-		SET name = $1, taxon = $2, updated_at = $3
-		WHERE id = $4
-	`, ps.Name, ps.Taxon, time.Now(), ps.Id)
+		SET name = $1, taxon = $2, updated_at = now()
+		WHERE id = $3
+		RETURNING id, name, taxon, created_at, updated_at
+	`, ps.Name, ps.Taxon, ps.Id).Scan(
+		&ps.Id, &ps.Name, &ps.Taxon, &ps.CreatedAt, &ps.UpdatedAt,
+	)
 	return err
 }
 
