@@ -21,7 +21,7 @@ func NewPlantCultivarHandler(table *db.PlantCultivarTable) *PlantCultivarHandler
 }
 
 func (h *PlantCultivarHandler) RegisterRoutes(r chi.Router) {
-	r.Route("/Cultivar", func(r chi.Router) {
+	r.Route("/plant-cultivar", func(r chi.Router) {
 		r.Get("/", h.GetAll)
 		r.Post("/", h.Create)
 		r.Get("/{id}", h.GetByID)
