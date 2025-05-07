@@ -14,6 +14,7 @@ import (
 
 	"github.com/kylep342/mendel/db"
 	"github.com/kylep342/mendel/handlers"
+	"github.com/kylep342/mendel/models"
 	"github.com/kylep342/mendel/responses"
 )
 
@@ -68,6 +69,12 @@ func (a *App) InitializeRoutes() {
 		r.Put("/{id}", psHandler.Update)
 		r.Delete("/{id}", psHandler.Delete)
 	})
+
+	plantHandler := &handlers.CRUDHandler[models.Plant]{
+		Table: &db.PlantTable{DB: a.DB},
+		New:   func() *models.Plant { return &models.Plant{} },
+	}
+	plantHandler.RegisterRoutes(a.Router, "/plant")
 }
 
 // Initialize creates the application as a whole

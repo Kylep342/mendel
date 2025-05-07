@@ -16,3 +16,7 @@ type Plant struct {
 	Genetics    struct{}  `db:"genetics"`
 	Labels      struct{}  `db:"labels"`
 }
+
+func (p *Plant) SetID(id string) {
+	p.Id = id
+}

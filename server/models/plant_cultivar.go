@@ -13,3 +13,7 @@ type PlantCultivar struct {
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 	Genetics  struct{}  `db:"genetics" json:"genetics"`
 }
+
+func (p *PlantCultivar) SetID(id string) {
+	p.Id = id
+}
