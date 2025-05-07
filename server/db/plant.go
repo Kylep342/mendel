@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/kylep342/mendel/models"
 )
@@ -9,6 +10,12 @@ import (
 type PlantTable struct {
 	DB *sql.DB
 }
+
+// func NewPlantTable(db *sql.DB) *PlantTable {
+// 	return &PlantTable{
+// 		DB: db,
+// 	}
+// }
 
 func (t *PlantTable) GetAll() ([]models.Plant, error) {
 	rows, err := t.DB.Query("SELECT id, cultivar_id, species_id, seed_id, pollen_id, generation, planted_at, harvested_at, genetics, labels FROM plant")
@@ -57,7 +64,7 @@ func (t *PlantTable) GetByID(id string) (models.Plant, error) {
 }
 
 func (t *PlantTable) Create(ps *models.Plant) error {
-	_, err := t.DB.Exec("INSERT INTO plant (cultivar_id, species_id, seed_id, pollen_id, generation, planted_at, harvested_at, genetics, labels) VALUES ($1, $2, $3, $4, $5, $5, $7, $8, $9, )", ps.CultivarId, ps.SpeciesId, ps.SeedId, ps.PollenId, ps.Generation, ps.PlantedAt, nil, ps.Genetics, ps.Labels)
+	_, err := t.DB.Exec("INSERT INTO plant (cultivar_id, species_id, seed_id, pollen_id, generation, planted_at, harvested_at, genetics, labels) VALUES ($1, $2, $3, $4, $5, $5, $7, $8, $9)", ps.CultivarId, ps.SpeciesId, ps.SeedId, ps.PollenId, ps.Generation, time.Now(), nil, ps.Genetics, ps.Labels)
 	return err
 }
 

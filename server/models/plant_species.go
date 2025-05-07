@@ -12,6 +12,6 @@ type PlantSpecies struct {
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 }
 
-func (p *PlantSpecies) SetID(id string) {
-	p.Id = id
-}
+func (p *PlantSpecies) GetID() string { return p.Id }
+
+func (p *PlantSpecies) SetID(id string) { p.Id = id }

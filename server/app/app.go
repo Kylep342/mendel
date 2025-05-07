@@ -64,10 +64,22 @@ func (a *App) InitializeRoutes() {
 
 	a.Router.Route("/plant-species", func(r chi.Router) {
 		r.Post("/", psHandler.Create)
-		// r.Get("/", psHandler.GetAll)
+		r.Get("/", psHandler.GetAll)
 		r.Get("/{id}", psHandler.GetByID)
 		r.Put("/{id}", psHandler.Update)
 		r.Delete("/{id}", psHandler.Delete)
+	})
+
+	pcRepo := db.NewPlantCultivarTable(a.DB)
+
+	pcHandler := handlers.NewPlantCultivarHandler(pcRepo)
+
+	a.Router.Route("/plant-cultivar", func(r chi.Router) {
+		r.Post("/", pcHandler.Create)
+		r.Get("/", pcHandler.GetAll)
+		r.Get("/{id}", pcHandler.GetByID)
+		r.Put("/{id}", pcHandler.Update)
+		r.Delete("/{id}", pcHandler.Delete)
 	})
 
 	plantHandler := &handlers.CRUDHandler[models.Plant]{

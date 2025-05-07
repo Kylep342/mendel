@@ -35,15 +35,15 @@ func (repo *PlantSpeciesTable) GetAll() ([]models.PlantSpecies, error) {
 	}
 	defer rows.Close()
 
-	var speciesList []models.PlantSpecies
+	var Species []models.PlantSpecies
 	for rows.Next() {
 		var ps models.PlantSpecies
 		if err := rows.Scan(&ps.Id, &ps.Name, &ps.Taxon, &ps.CreatedAt, &ps.UpdatedAt); err != nil {
 			return nil, err
 		}
-		speciesList = append(speciesList, ps)
+		Species = append(Species, ps)
 	}
-	return speciesList, nil
+	return Species, nil
 }
 
 // read one

@@ -66,10 +66,10 @@ func (h *CRUDHandler[T]) GetByID(w http.ResponseWriter, r *http.Request) {
 func (h *CRUDHandler[T]) Update(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	item := h.New()
-	if identifiable, ok := any(item).(models.Model); ok {
-		identifiable.SetID(id)
+	if model, ok := any(item).(models.Model); ok {
+		model.SetID(id)
 	} else {
-		http.Error(w, "Item does not implement Identifiable", http.StatusInternalServerError)
+		http.Error(w, "Item does not implement Model", http.StatusInternalServerError)
 		return
 	}
 

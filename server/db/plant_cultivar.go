@@ -17,13 +17,13 @@ func NewPlantCultivarTable(db *sql.DB) *PlantCultivarTable {
 }
 
 // insert
-func (repo *PlantCultivarTable) Create(ps *models.PlantCultivar) error {
+func (repo *PlantCultivarTable) Create(pc *models.PlantCultivar) error {
 	query := `
 		INSERT INTO plant_cultivar (species_id, name, cultivar, genetics)
 		VALUES ($1, $2, $3, $4)
 		returning id, created_at, updated_at
 	`
-	err := repo.DB.QueryRow(query, ps.SpeciesId, ps.Name, ps.Cultivar, ps.Genetics).Scan(&ps.Id, &ps.CreatedAt, &ps.UpdatedAt)
+	err := repo.DB.QueryRow(query, pc.SpeciesId, pc.Name, pc.Cultivar, pc.Genetics).Scan(&pc.Id, &pc.CreatedAt, &pc.UpdatedAt)
 	return err
 }
 
@@ -35,39 +35,39 @@ func (repo *PlantCultivarTable) GetAll() ([]models.PlantCultivar, error) {
 	}
 	defer rows.Close()
 
-	var CultivarList []models.PlantCultivar
+	var Cultivars []models.PlantCultivar
 	for rows.Next() {
-		var ps models.PlantCultivar
-		if err := rows.Scan(&ps.Id, &ps.SpeciesId, &ps.Name, &ps.Cultivar, &ps.CreatedAt, &ps.UpdatedAt, &ps.Genetics); err != nil {
+		var pc models.PlantCultivar
+		if err := rows.Scan(&pc.Id, &pc.SpeciesId, &pc.Name, &pc.Cultivar, &pc.CreatedAt, &pc.UpdatedAt, &pc.Genetics); err != nil {
 			return nil, err
 		}
-		CultivarList = append(CultivarList, ps)
+		Cultivars = append(Cultivars, pc)
 	}
-	return CultivarList, nil
+	return Cultivars, nil
 }
 
 // read one
 func (repo *PlantCultivarTable) GetByID(id string) (*models.PlantCultivar, error) {
-	var ps models.PlantCultivar
+	var pc models.PlantCultivar
 	err := repo.DB.QueryRow(`
 		SELECT id, species_id, name, cultivar, created_at, updated_at, genetics FROM plant_cultivar WHERE id = $1
-	`, id).Scan(&ps.Id, &ps.SpeciesId, &ps.Name, &ps.Cultivar, &ps.CreatedAt, &ps.UpdatedAt, &ps.Genetics)
+	`, id).Scan(&pc.Id, &pc.SpeciesId, &pc.Name, &pc.Cultivar, &pc.CreatedAt, &pc.UpdatedAt, &pc.Genetics)
 
 	if err != nil {
 		return nil, err
 	}
-	return &ps, nil
+	return &pc, nil
 }
 
 // update
-func (repo *PlantCultivarTable) Update(ps *models.PlantCultivar) error {
+func (repo *PlantCultivarTable) Update(pc *models.PlantCultivar) error {
 	err := repo.DB.QueryRow(`
 		UPDATE plant_cultivar
 		SET species_id = $1, name = $2, cultivar = $3, genetics = $4
 		WHERE id = $5
 		RETURNING id, species_id, name, cultivar, created_at, updated_at, genetics
-	`, ps.SpeciesId, ps.Name, ps.Cultivar, ps.Genetics, ps.Id).Scan(
-		&ps.Id, &ps.SpeciesId, &ps.Name, &ps.Cultivar, &ps.CreatedAt, &ps.UpdatedAt, &ps.Genetics,
+	`, pc.SpeciesId, pc.Name, pc.Cultivar, pc.Genetics, pc.Id).Scan(
+		&pc.Id, &pc.SpeciesId, &pc.Name, &pc.Cultivar, &pc.CreatedAt, &pc.UpdatedAt, &pc.Genetics,
 	)
 	return err
 }
