@@ -6,6 +6,41 @@ import (
 	"github.com/kylep342/mendel/models"
 )
 
+const (
+	// PlantSpeciesTableName is the name of the plant species table in the database
+	TABLE_PLANT_SPECIES = "plant_species"
+
+	// queryCreatePlantSpecies is the query template literal to create a new plant species
+	queryCreatePlantSpecies = `
+		INSERT INTO plant_species (name, taxon)
+		VALUES ($1, $2)
+		RETURNING id, created_at, updated_at
+	`
+	// queryGetAllPlantSpecies is the query template literal to get all plant species
+	queryGetAllPlantSpecies = `
+		SELECT id, name, taxon, created_at, updated_at
+		FROM plant_species
+	`
+	// queryGetByIDPlantSpecies is the query template literal to get a plant species by ID
+	queryGetByIDPlantSpecies = `
+		SELECT id, name, taxon, created_at, updated_at
+		FROM plant_species
+		WHERE id = $1
+	`
+	// queryUpdatePlantSpecies is the query template literal to update a plant species
+	queryUpdatePlantSpecies = `
+		UPDATE plant_species
+		SET name = $1, taxon = $2
+		WHERE id = $3
+		RETURNING id, name, taxon, created_at, updated_at
+	`
+	// queryDeletePlantSpecies is the query template literal to delete a plant species
+	queryDeletePlantSpecies = `
+		DELETE FROM plant_species
+		WHERE id = $1
+	`
+)
+
 type PlantSpeciesTable struct {
 	DB *sql.DB
 }

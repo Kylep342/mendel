@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/kylep342/mendel/db"
 	"github.com/kylep342/mendel/models"
+	"github.com/kylep342/mendel/responses"
 )
 
 type CRUDHandler[T any] struct {
@@ -29,7 +30,7 @@ func (h *CRUDHandler[T]) RegisterRoutes(r chi.Router, basePath string) {
 func (h *CRUDHandler[T]) GetAll(w http.ResponseWriter, r *http.Request) {
 	items, err := h.Table.GetAll()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		responses.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	json.NewEncoder(w).Encode(items)
@@ -38,11 +39,11 @@ func (h *CRUDHandler[T]) GetAll(w http.ResponseWriter, r *http.Request) {
 func (h *CRUDHandler[T]) Create(w http.ResponseWriter, r *http.Request) {
 	item := h.New()
 	if err := json.NewDecoder(r.Body).Decode(item); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		responses.RespondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	if err := h.Table.Create(item); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		responses.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
@@ -54,9 +55,9 @@ func (h *CRUDHandler[T]) GetByID(w http.ResponseWriter, r *http.Request) {
 	item, err := h.Table.GetByID(id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			http.Error(w, "Not found", http.StatusNotFound)
+			responses.RespondWithError(w, http.StatusNotFound, "Not found")
 		} else {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			responses.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -69,12 +70,12 @@ func (h *CRUDHandler[T]) Update(w http.ResponseWriter, r *http.Request) {
 	if model, ok := any(item).(models.Model); ok {
 		model.SetID(id)
 	} else {
-		http.Error(w, "Item does not implement Model", http.StatusInternalServerError)
+		responses.RespondWithError(w, http.StatusInternalServerError, "Item does not implement Model")
 		return
 	}
 
 	if err := h.Table.Update(item); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		responses.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	json.NewEncoder(w).Encode(item)
@@ -83,7 +84,7 @@ func (h *CRUDHandler[T]) Update(w http.ResponseWriter, r *http.Request) {
 func (h *CRUDHandler[T]) Delete(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if err := h.Table.Delete(id); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		responses.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)

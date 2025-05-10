@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -12,6 +13,7 @@ import (
 
 	_ "github.com/jackc/pgx/stdlib"
 
+	"github.com/kylep342/mendel/constants"
 	"github.com/kylep342/mendel/db"
 	"github.com/kylep342/mendel/handlers"
 	"github.com/kylep342/mendel/models"
@@ -28,7 +30,7 @@ type config struct {
 }
 
 // method to initialize config struct from environment variables
-func (conf *config) Configure() {
+func (conf *config) Configure(ctx context.Context) {
 	conf.sqlUrl = os.Getenv("DATABASE_URL")
 	// conf.redisPassword = os.Getenv("REDIS_PASSWORD")
 	// conf.redisHost = os.Getenv("REDIS_HOST")
@@ -44,8 +46,9 @@ var conf = config{}
 // DB is a pointer to a db
 // Redis is a pointer to a redis client
 type App struct {
-	Router chi.Router
-	DB     *sql.DB
+	Context context.Context
+	DB      *sql.DB
+	Router  chi.Router
 	// Redis  *redis.Client
 }
 
@@ -91,14 +94,18 @@ func (a *App) InitializeRoutes() {
 
 // Initialize creates the application as a whole
 func (a *App) Initialize() {
+	ctx := context.Background()
 	var err error
-	conf.Configure()
+	conf.Configure(ctx)
+	a.Context = ctx
+
+	// Postgres setup
 	a.DB, err = sql.Open("pgx", conf.sqlUrl)
 
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = a.DB.Exec("SET search_path TO mendel_core")
+	_, err = a.DB.Exec(constants.DBInitQuery)
 	if err != nil {
 		log.Fatal(fmt.Errorf("failed to set search_path: %w", err))
 	}
