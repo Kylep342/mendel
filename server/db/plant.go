@@ -4,15 +4,19 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/kylep342/mendel/constants"
 	"github.com/kylep342/mendel/models"
 )
 
 const (
 	// PlantTableName is the name of the plant table in the database
-	TABLE_PLANT = "plant"
+	TABLE_PLANT = constants.SchemaMendelCore + ".plant"
 
 	// queryCreatePlant is the query template literal to create a new plant
-	queryCreatePlant = `INSERT INTO ` + TABLE_PLANT + ` (cultivar_id, species_id, seed_id, pollen_id, generation, planted_at, harvested_at, genetics, labels) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+	queryCreatePlant = `
+		INSERT INTO ` + TABLE_PLANT + `
+		(cultivar_id, species_id, seed_id, pollen_id, generation, planted_at, harvested_at, genetics, labels)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		RETURNING id, planted_at`
 
 	// queryGetAllPlants is the query template literal to get all plants
@@ -26,8 +30,9 @@ const (
 		FROM ` + TABLE_PLANT + ` WHERE id = $1`
 
 	// queryUpdatePlant is the query template literal to update a plant
-	queryUpdatePlant = `UPDATE ` + TABLE_PLANT + ` SET
-		cultivar_id = $2, species_id = $3, seed_id = $4, pollen_id = $5, generation = $6, planted_at = $7, harvested_at = $8, genetics = $9, labels = $10
+	queryUpdatePlant = `
+		UPDATE ` + TABLE_PLANT + `
+		SET cultivar_id = $2, species_id = $3, seed_id = $4, pollen_id = $5, generation = $6, planted_at = $7, harvested_at = $8, genetics = $9, labels = $10
 		WHERE id = $1
 		RETURNING id, cultivar_id, species_id, seed_id, pollen_id, generation, planted_at, harvested_at, genetics, labels`
 

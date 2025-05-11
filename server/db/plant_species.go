@@ -3,42 +3,41 @@ package db
 import (
 	"database/sql"
 
+	"github.com/kylep342/mendel/constants"
 	"github.com/kylep342/mendel/models"
 )
 
 const (
 	// PlantSpeciesTableName is the name of the plant species table in the database
-	TABLE_PLANT_SPECIES = "plant_species"
+	TABLE_PLANT_SPECIES = constants.SchemaMendelCore + ".plant_species"
 
 	// queryCreatePlantSpecies is the query template literal to create a new plant species
 	queryCreatePlantSpecies = `
-		INSERT INTO plant_species (name, taxon)
+		INSERT INTO ` + TABLE_PLANT_SPECIES + `
+		(name, taxon)
 		VALUES ($1, $2)
 		RETURNING id, created_at, updated_at
 	`
+
 	// queryGetAllPlantSpecies is the query template literal to get all plant species
 	queryGetAllPlantSpecies = `
 		SELECT id, name, taxon, created_at, updated_at
-		FROM plant_species
-	`
+		FROM ` + TABLE_PLANT_SPECIES
+
 	// queryGetByIDPlantSpecies is the query template literal to get a plant species by ID
 	queryGetByIDPlantSpecies = `
 		SELECT id, name, taxon, created_at, updated_at
-		FROM plant_species
-		WHERE id = $1
-	`
+		FROM ` + TABLE_PLANT_SPECIES + ` WHERE id = $1`
+
 	// queryUpdatePlantSpecies is the query template literal to update a plant species
 	queryUpdatePlantSpecies = `
-		UPDATE plant_species
+		UPDATE ` + TABLE_PLANT_SPECIES + `
 		SET name = $1, taxon = $2
 		WHERE id = $3
 		RETURNING id, name, taxon, created_at, updated_at
 	`
 	// queryDeletePlantSpecies is the query template literal to delete a plant species
-	queryDeletePlantSpecies = `
-		DELETE FROM plant_species
-		WHERE id = $1
-	`
+	queryDeletePlantSpecies = `DELETE FROM ` + TABLE_PLANT_SPECIES + ` WHERE id = $1`
 )
 
 type PlantSpeciesTable struct {
@@ -51,7 +50,7 @@ func NewPlantSpeciesTable(db *sql.DB) *PlantSpeciesTable {
 	}
 }
 
-// insert
+// Create inserts a new plant species into the database
 func (repo *PlantSpeciesTable) Create(ps *models.PlantSpecies) error {
 	query := `
 		INSERT INTO plant_species (name, taxon)
@@ -62,7 +61,7 @@ func (repo *PlantSpeciesTable) Create(ps *models.PlantSpecies) error {
 	return err
 }
 
-// read all
+// GetAll retrieves all plant species from the database
 func (repo *PlantSpeciesTable) GetAll() ([]models.PlantSpecies, error) {
 	rows, err := repo.DB.Query(`SELECT id, name, taxon, created_at, updated_at FROM plant_species`)
 	if err != nil {
@@ -81,7 +80,7 @@ func (repo *PlantSpeciesTable) GetAll() ([]models.PlantSpecies, error) {
 	return Species, nil
 }
 
-// read one
+// GetByID retrieves a plant species identified by argument `id` from the database
 func (repo *PlantSpeciesTable) GetByID(id string) (*models.PlantSpecies, error) {
 	var ps models.PlantSpecies
 	err := repo.DB.QueryRow(`
@@ -94,7 +93,7 @@ func (repo *PlantSpeciesTable) GetByID(id string) (*models.PlantSpecies, error) 
 	return &ps, nil
 }
 
-// update
+// Update updates a plant species identified by argument `id` in the database
 func (repo *PlantSpeciesTable) Update(ps *models.PlantSpecies) error {
 	err := repo.DB.QueryRow(`
 		UPDATE plant_species
@@ -107,7 +106,7 @@ func (repo *PlantSpeciesTable) Update(ps *models.PlantSpecies) error {
 	return err
 }
 
-// delete
+// Delete removes a plant species identified by argument `id` from the database
 func (repo *PlantSpeciesTable) Delete(id string) error {
 	_, err := repo.DB.Exec(`DELETE FROM plant_species WHERE id = $1`, id)
 	return err
