@@ -26,7 +26,8 @@ const (
 	// queryGetPlantCultivarByID is the query template literal to get a plant cultivar by ID
 	queryGetPlantCultivarByID = `
 		SELECT id, species_id, name, cultivar, created_at, updated_at, genetics
-		FROM ` + TABLE_PLANT_CULTIVAR + ` WHERE id = $1`
+		FROM ` + TABLE_PLANT_CULTIVAR + ` WHERE id = $1
+	`
 	// queryUpdatePlantCultivar is the query template literal to update a plant cultivar
 	queryUpdatePlantCultivar = `
 		UPDATE ` + TABLE_PLANT_CULTIVAR + `

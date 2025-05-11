@@ -27,7 +27,8 @@ const (
 	// queryGetByIDPlantSpecies is the query template literal to get a plant species by ID
 	queryGetByIDPlantSpecies = `
 		SELECT id, name, taxon, created_at, updated_at
-		FROM ` + TABLE_PLANT_SPECIES + ` WHERE id = $1`
+		FROM ` + TABLE_PLANT_SPECIES + ` WHERE id = $1
+	`
 
 	// queryUpdatePlantSpecies is the query template literal to update a plant species
 	queryUpdatePlantSpecies = `
