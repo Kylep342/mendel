@@ -54,8 +54,7 @@ services:
     command: >
       sh -c "npm install &&
              mkdir -p logs &&
-             npm run dev &
-             npm run test
+             npm run dev
              wait"
     depends_on:
       - postgres
