@@ -39,20 +39,27 @@ services:
     profiles:
       - dev
 
-  # web:
-  #   image: node:20
-  #   container_name: web
-  #   working_dir: /app
-  #   volumes:
-  #     - ./web:/app
-  #     - /app/node_modules
-  #   ports:
-  #     - "5173:5173"
-  #   command: ["npm", "run", "dev"]
-  #   depends_on:
-  #     - webserver
-  #   networks:
-  #     - mendel
+  web:
+    image: node:20
+    container_name: web
+    working_dir: /app
+    environment:
+      - SERVER_URL=http://webserver:8080
+    networks:
+      - mendel
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./web:/app
+    command: >
+      sh -c "npm install &&
+             mkdir -p logs &&
+             npm run dev &
+             npm run test
+             wait"
+    depends_on:
+      - postgres
+      - webserver
 
 volumes:
   postgres_data:
