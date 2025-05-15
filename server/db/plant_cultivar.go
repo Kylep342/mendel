@@ -43,13 +43,6 @@ type PlantCultivarTable struct {
 	DB *sql.DB
 }
 
-// NewPlantCultivarTable creates a new PlantCultivarTable instance
-func NewPlantCultivarTable(db *sql.DB) *PlantCultivarTable {
-	return &PlantCultivarTable{
-		DB: db,
-	}
-}
-
 // Create inserts a new plant cultivar into the database
 func (repo *PlantCultivarTable) Create(pc *models.PlantCultivar) error {
 	err := repo.DB.QueryRow(queryCreatePlantCultivar, pc.SpeciesId, pc.Name, pc.Cultivar, pc.Genetics).Scan(&pc.Id, &pc.CreatedAt, &pc.UpdatedAt)
@@ -76,14 +69,10 @@ func (repo *PlantCultivarTable) GetAll() ([]models.PlantCultivar, error) {
 }
 
 // GetByID retrieves a plant cultivar identified by arg `id` from the database
-func (repo *PlantCultivarTable) GetByID(id string) (*models.PlantCultivar, error) {
+func (repo *PlantCultivarTable) GetByID(id string) (models.PlantCultivar, error) {
 	var pc models.PlantCultivar
 	err := repo.DB.QueryRow(queryGetPlantCultivarByID, id).Scan(&pc.Id, &pc.SpeciesId, &pc.Name, &pc.Cultivar, &pc.CreatedAt, &pc.UpdatedAt, &pc.Genetics)
-
-	if err != nil {
-		return nil, err
-	}
-	return &pc, nil
+	return pc, err
 }
 
 // Update modifies an existing plant cultivar in the database

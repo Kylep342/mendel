@@ -8,15 +8,7 @@ const (
 	TablePlantCultivar = "plant_cultivar"
 	TableUser          = "user"
 
-	QueryInsertPlantSpecies = `
-		INSERT INTO ` + SchemaMendelCore + `.` + TablePlantSpecies + ` (name, taxon)
-		VALUES ($1, $2)
-		RETURNING id, created_at, updated_at
-	`
-
-	QuerySelectPlantSpeciesByID = `
-		SELECT id, name, taxon, created_at, updated_at
-		FROM ` + SchemaMendelCore + `.` + TablePlantSpecies + `
-		WHERE id = $1
-	`
+	RoutePlant         = "/plant"
+	RoutePlantCultivar = "/plant-cultivar"
+	RoutePlantSpecies  = "/plant-species"
 )

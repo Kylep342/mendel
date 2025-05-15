@@ -61,35 +61,23 @@ func (a *App) InitializeRoutes() {
 		responses.RespondWithData(w, http.StatusOK, "ok")
 	})
 
-	psRepo := db.NewPlantSpeciesTable(a.DB)
+	plantSpeciesHandler := &handlers.CRUDHandler[models.PlantSpecies]{
+		Table: &db.PlantSpeciesTable{DB: a.DB},
+		New:   func() *models.PlantSpecies { return &models.PlantSpecies{} },
+	}
+	plantSpeciesHandler.RegisterRoutes(a.Router, constants.RoutePlantSpecies)
 
-	psHandler := handlers.NewPlantSpeciesHandler(psRepo)
-
-	a.Router.Route("/plant-species", func(r chi.Router) {
-		r.Post("/", psHandler.Create)
-		r.Get("/", psHandler.GetAll)
-		r.Get("/{id}", psHandler.GetByID)
-		r.Put("/{id}", psHandler.Update)
-		r.Delete("/{id}", psHandler.Delete)
-	})
-
-	pcRepo := db.NewPlantCultivarTable(a.DB)
-
-	pcHandler := handlers.NewPlantCultivarHandler(pcRepo)
-
-	a.Router.Route("/plant-cultivar", func(r chi.Router) {
-		r.Post("/", pcHandler.Create)
-		r.Get("/", pcHandler.GetAll)
-		r.Get("/{id}", pcHandler.GetByID)
-		r.Put("/{id}", pcHandler.Update)
-		r.Delete("/{id}", pcHandler.Delete)
-	})
+	plantCultivarHandler := &handlers.CRUDHandler[models.PlantCultivar]{
+		Table: &db.PlantCultivarTable{DB: a.DB},
+		New:   func() *models.PlantCultivar { return &models.PlantCultivar{} },
+	}
+	plantCultivarHandler.RegisterRoutes(a.Router, constants.RoutePlantCultivar)
 
 	plantHandler := &handlers.CRUDHandler[models.Plant]{
 		Table: &db.PlantTable{DB: a.DB},
 		New:   func() *models.Plant { return &models.Plant{} },
 	}
-	plantHandler.RegisterRoutes(a.Router, "/plant")
+	plantHandler.RegisterRoutes(a.Router, constants.RoutePlant)
 }
 
 // Initialize creates the application as a whole

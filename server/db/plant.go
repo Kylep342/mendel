@@ -47,12 +47,6 @@ type PlantTable struct {
 	DB *sql.DB
 }
 
-// func NewPlantTable(db *sql.DB) *PlantTable {
-// 	return &PlantTable{
-// 		DB: db,
-// 	}
-// }
-
 // GetAll retrieves all plants from the database
 func (t *PlantTable) GetAll() ([]models.Plant, error) {
 	rows, err := t.DB.Query(queryGetAllPlants)
@@ -101,7 +95,7 @@ func (t *PlantTable) GetByID(id string) (models.Plant, error) {
 	return ps, err
 }
 
-// GetByIDs retrieves plants by IDs from the database
+// Create saves a new plant to the database
 func (t *PlantTable) Create(ps *models.Plant) error {
 	err := t.DB.QueryRow(queryCreatePlant,
 		ps.CultivarId,
@@ -119,7 +113,7 @@ func (t *PlantTable) Create(ps *models.Plant) error {
 	return err
 }
 
-// GetByIDs retrieves plants by IDs from the database
+// Update changes plants by IDs from the database
 func (t *PlantTable) Update(ps *models.Plant) error {
 	_, err := t.DB.Exec(queryUpdatePlant, ps.Id, ps.CultivarId, ps.SpeciesId, ps.SeedId, ps.PollenId, ps.Generation, ps.PlantedAt, ps.HarvestedAt, ps.Genetics, ps.Labels)
 	return err

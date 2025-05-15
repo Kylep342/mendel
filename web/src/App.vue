@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
+import routes from './constants/routes'
 </script>
 
 <template>
@@ -19,27 +20,11 @@ import HelloWorld from './components/HelloWorld.vue'
   </header>
 
   <div>
-    <table>
-      <thead>
-        <tr>
-          <th>One</th>
-          <th>Two</th>
-          <th>Three</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>2</td>
-          <td>3</td>
-        </tr>
-        <tr>
-          <td>1</td>
-          <td>2</td>
-          <td>3</td>
-        </tr>
-      </tbody>
-    </table>
+    <ul>
+      <li v-for="route in routes" :key="route">
+        {{ route }}
+      </li>
+    </ul>
   </div>
   <!-- <RouterView /> -->
 </template>

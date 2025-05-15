@@ -12,8 +12,8 @@ Goal - Allow for the characterization and assessment of traits across generation
 
 
  - plant (THING)
+    - is in a plantCultivar
     - is in a plantSpecies
-    -
 
  - harvest
     - occurs to plants

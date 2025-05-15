@@ -45,26 +45,16 @@ type PlantSpeciesTable struct {
 	DB *sql.DB
 }
 
-func NewPlantSpeciesTable(db *sql.DB) *PlantSpeciesTable {
-	return &PlantSpeciesTable{
-		DB: db,
-	}
-}
-
 // Create inserts a new plant species into the database
-func (repo *PlantSpeciesTable) Create(ps *models.PlantSpecies) error {
-	query := `
-		INSERT INTO plant_species (name, taxon)
-		VALUES ($1, $2)
-		returning id, created_at, updated_at
-	`
-	err := repo.DB.QueryRow(query, ps.Name, ps.Taxon).Scan(&ps.Id, &ps.CreatedAt, &ps.UpdatedAt)
+func (t *PlantSpeciesTable) Create(ps *models.PlantSpecies) error {
+	query := queryCreatePlantSpecies
+	err := t.DB.QueryRow(query, ps.Name, ps.Taxon).Scan(&ps.Id, &ps.CreatedAt, &ps.UpdatedAt)
 	return err
 }
 
 // GetAll retrieves all plant species from the database
-func (repo *PlantSpeciesTable) GetAll() ([]models.PlantSpecies, error) {
-	rows, err := repo.DB.Query(`SELECT id, name, taxon, created_at, updated_at FROM plant_species`)
+func (t *PlantSpeciesTable) GetAll() ([]models.PlantSpecies, error) {
+	rows, err := t.DB.Query(queryGetAllPlantSpecies)
 	if err != nil {
 		return nil, err
 	}
@@ -82,33 +72,22 @@ func (repo *PlantSpeciesTable) GetAll() ([]models.PlantSpecies, error) {
 }
 
 // GetByID retrieves a plant species identified by argument `id` from the database
-func (repo *PlantSpeciesTable) GetByID(id string) (*models.PlantSpecies, error) {
+func (t *PlantSpeciesTable) GetByID(id string) (models.PlantSpecies, error) {
 	var ps models.PlantSpecies
-	err := repo.DB.QueryRow(`
-		SELECT id, name, taxon, created_at, updated_at FROM plant_species WHERE id = $1
-	`, id).Scan(&ps.Id, &ps.Name, &ps.Taxon, &ps.CreatedAt, &ps.UpdatedAt)
-
-	if err != nil {
-		return nil, err
-	}
-	return &ps, nil
+	err := t.DB.QueryRow(queryGetByIDPlantSpecies, id).Scan(&ps.Id, &ps.Name, &ps.Taxon, &ps.CreatedAt, &ps.UpdatedAt)
+	return ps, err
 }
 
 // Update updates a plant species identified by argument `id` in the database
-func (repo *PlantSpeciesTable) Update(ps *models.PlantSpecies) error {
-	err := repo.DB.QueryRow(`
-		UPDATE plant_species
-		SET name = $1, taxon = $2
-		WHERE id = $3
-		RETURNING id, name, taxon, created_at, updated_at
-	`, ps.Name, ps.Taxon, ps.Id).Scan(
+func (t *PlantSpeciesTable) Update(ps *models.PlantSpecies) error {
+	err := t.DB.QueryRow(queryUpdatePlantSpecies, ps.Name, ps.Taxon, ps.Id).Scan(
 		&ps.Id, &ps.Name, &ps.Taxon, &ps.CreatedAt, &ps.UpdatedAt,
 	)
 	return err
 }
 
 // Delete removes a plant species identified by argument `id` from the database
-func (repo *PlantSpeciesTable) Delete(id string) error {
-	_, err := repo.DB.Exec(`DELETE FROM plant_species WHERE id = $1`, id)
+func (t *PlantSpeciesTable) Delete(id string) error {
+	_, err := t.DB.Exec(queryDeletePlantSpecies, id)
 	return err
 }
