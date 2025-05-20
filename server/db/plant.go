@@ -10,11 +10,11 @@ import (
 
 const (
 	// PlantTableName is the name of the plant table in the database
-	TABLE_PLANT = constants.SchemaMendelCore + ".plant"
+	tablePlant = constants.SchemaMendelCore + ".plant"
 
 	// queryCreatePlant is the query template literal to create a new plant
 	queryCreatePlant = `
-		INSERT INTO ` + TABLE_PLANT + `
+		INSERT INTO ` + tablePlant + `
 		(cultivar_id, species_id, seed_id, pollen_id, generation, planted_at, harvested_at, genetics, labels)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		RETURNING id, planted_at
@@ -23,24 +23,24 @@ const (
 	// queryGetAllPlants is the query template literal to get all plants
 	queryGetAllPlants = `
 		SELECT id, cultivar_id, species_id, seed_id, pollen_id, generation, planted_at, harvested_at, genetics, labels
-		FROM ` + TABLE_PLANT
+		FROM ` + tablePlant
 
 	// queryGetPlantByID is the query template literal to get a plant by ID
 	queryGetPlantByID = `
 		SELECT id, cultivar_id, species_id, seed_id, pollen_id, generation, planted_at, harvested_at, genetics, labels
-		FROM ` + TABLE_PLANT + ` WHERE id = $1
+		FROM ` + tablePlant + ` WHERE id = $1
 	`
 
 	// queryUpdatePlant is the query template literal to update a plant
 	queryUpdatePlant = `
-		UPDATE ` + TABLE_PLANT + `
+		UPDATE ` + tablePlant + `
 		SET cultivar_id = $2, species_id = $3, seed_id = $4, pollen_id = $5, generation = $6, planted_at = $7, harvested_at = $8, genetics = $9, labels = $10
 		WHERE id = $1
 		RETURNING id, cultivar_id, species_id, seed_id, pollen_id, generation, planted_at, harvested_at, genetics, labels
 	`
 
 	// queryDeletePlant is the query template literal to delete a plant
-	queryDeletePlant = `DELETE FROM ` + TABLE_PLANT + ` WHERE id = $1`
+	queryDeletePlant = `DELETE FROM ` + tablePlant + ` WHERE id = $1`
 )
 
 type PlantTable struct {
@@ -59,11 +59,11 @@ func (t *PlantTable) GetAll() ([]models.Plant, error) {
 	for rows.Next() {
 		var ps models.Plant
 		if err := rows.Scan(
-			&ps.Id,
-			&ps.CultivarId,
-			&ps.SpeciesId,
-			&ps.SeedId,
-			&ps.PollenId,
+			&ps.ID,
+			&ps.CultivarID,
+			&ps.SpeciesID,
+			&ps.SeedID,
+			&ps.PollenID,
 			&ps.Generation,
 			&ps.PlantedAt,
 			&ps.HarvestedAt,
@@ -82,11 +82,11 @@ func (t *PlantTable) GetByID(id string) (models.Plant, error) {
 	err := t.DB.QueryRow(
 		queryGetPlantByID,
 		id).Scan(
-		&ps.Id,
-		&ps.CultivarId,
-		&ps.SpeciesId,
-		&ps.SeedId,
-		&ps.PollenId,
+		&ps.ID,
+		&ps.CultivarID,
+		&ps.SpeciesID,
+		&ps.SeedID,
+		&ps.PollenID,
 		&ps.Generation,
 		&ps.PlantedAt,
 		&ps.HarvestedAt,
@@ -98,16 +98,16 @@ func (t *PlantTable) GetByID(id string) (models.Plant, error) {
 // Create saves a new plant to the database
 func (t *PlantTable) Create(ps *models.Plant) error {
 	err := t.DB.QueryRow(queryCreatePlant,
-		ps.CultivarId,
-		ps.SpeciesId,
-		ps.SeedId,
-		ps.PollenId,
+		ps.CultivarID,
+		ps.SpeciesID,
+		ps.SeedID,
+		ps.PollenID,
 		ps.Generation,
 		time.Now(),
 		nil,
 		ps.Genetics,
 		ps.Labels).Scan(
-		&ps.Id,
+		&ps.ID,
 		&ps.PlantedAt,
 	)
 	return err
@@ -115,7 +115,7 @@ func (t *PlantTable) Create(ps *models.Plant) error {
 
 // Update changes plants by IDs from the database
 func (t *PlantTable) Update(ps *models.Plant) error {
-	_, err := t.DB.Exec(queryUpdatePlant, ps.Id, ps.CultivarId, ps.SpeciesId, ps.SeedId, ps.PollenId, ps.Generation, ps.PlantedAt, ps.HarvestedAt, ps.Genetics, ps.Labels)
+	_, err := t.DB.Exec(queryUpdatePlant, ps.ID, ps.CultivarID, ps.SpeciesID, ps.SeedID, ps.PollenID, ps.Generation, ps.PlantedAt, ps.HarvestedAt, ps.Genetics, ps.Labels)
 	return err
 }
 

@@ -5,8 +5,8 @@ import (
 )
 
 type PlantCultivar struct {
-	Id        string      `db:"id" json:"id"`
-	SpeciesId string      `db:"species_id" json:"species_id"`
+	ID        string      `db:"id" json:"id"`
+	SpeciesID string      `db:"species_id" json:"species_id"`
 	Name      string      `db:"name" json:"name"`
 	Cultivar  string      `db:"cultivar" json:"cultivar"`
 	CreatedAt time.Time   `db:"created_at" json:"created_at"`
@@ -14,6 +14,6 @@ type PlantCultivar struct {
 	Genetics  interface{} `db:"genetics" json:"genetics"`
 }
 
-func (p *PlantCultivar) GetID() string { return p.Id }
+func (p *PlantCultivar) GetID() string { return p.ID }
 
-func (p *PlantCultivar) SetID(id string) { p.Id = id }
+func (p *PlantCultivar) SetID(id string) { p.ID = id }

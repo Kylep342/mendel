@@ -9,11 +9,11 @@ import (
 
 const (
 	// PlantCultivarTableName is the name of the table in the database
-	TABLE_PLANT_CULTIVAR = constants.SchemaMendelCore + ".plant_cultivar"
+	tablePlantCultivar = constants.SchemaMendelCore + ".plant_cultivar"
 
 	// queryCreatePlantCultivar is the query template literal to create a new plant cultivar
 	queryCreatePlantCultivar = `
-		INSERT INTO ` + TABLE_PLANT_CULTIVAR + `
+		INSERT INTO ` + tablePlantCultivar + `
 		(species_id, name, cultivar, genetics)
 		VALUES ($1, $2, $3, $4)
 		RETURNING id, created_at, updated_at
@@ -21,22 +21,22 @@ const (
 	// queryGetAllPlantCultivars is the query template literal to get all plant cultivars
 	queryGetAllPlantCultivars = `
 		SELECT id, species_id, name, cultivar, created_at, updated_at, genetics
-		FROM ` + TABLE_PLANT_CULTIVAR
+		FROM ` + tablePlantCultivar
 
 	// queryGetPlantCultivarByID is the query template literal to get a plant cultivar by ID
 	queryGetPlantCultivarByID = `
 		SELECT id, species_id, name, cultivar, created_at, updated_at, genetics
-		FROM ` + TABLE_PLANT_CULTIVAR + ` WHERE id = $1
+		FROM ` + tablePlantCultivar + ` WHERE id = $1
 	`
 	// queryUpdatePlantCultivar is the query template literal to update a plant cultivar
 	queryUpdatePlantCultivar = `
-		UPDATE ` + TABLE_PLANT_CULTIVAR + `
+		UPDATE ` + tablePlantCultivar + `
 		SET species_id = $2, name = $3, cultivar = $4, genetics = $5
 		WHERE id = $1
 		RETURNING id, species_id, name, cultivar, created_at, updated_at, genetics
 	`
 	// queryDeletePlantCultivar is the query template literal to delete a plant cultivar
-	queryDeletePlantCultivar = `DELETE FROM ` + TABLE_PLANT_CULTIVAR + ` WHERE id = $1`
+	queryDeletePlantCultivar = `DELETE FROM ` + tablePlantCultivar + ` WHERE id = $1`
 )
 
 type PlantCultivarTable struct {
@@ -45,7 +45,7 @@ type PlantCultivarTable struct {
 
 // Create inserts a new plant cultivar into the database
 func (repo *PlantCultivarTable) Create(pc *models.PlantCultivar) error {
-	err := repo.DB.QueryRow(queryCreatePlantCultivar, pc.SpeciesId, pc.Name, pc.Cultivar, pc.Genetics).Scan(&pc.Id, &pc.CreatedAt, &pc.UpdatedAt)
+	err := repo.DB.QueryRow(queryCreatePlantCultivar, pc.SpeciesID, pc.Name, pc.Cultivar, pc.Genetics).Scan(&pc.ID, &pc.CreatedAt, &pc.UpdatedAt)
 	return err
 }
 
@@ -60,7 +60,7 @@ func (repo *PlantCultivarTable) GetAll() ([]models.PlantCultivar, error) {
 	var Cultivars []models.PlantCultivar
 	for rows.Next() {
 		var pc models.PlantCultivar
-		if err := rows.Scan(&pc.Id, &pc.SpeciesId, &pc.Name, &pc.Cultivar, &pc.CreatedAt, &pc.UpdatedAt, &pc.Genetics); err != nil {
+		if err := rows.Scan(&pc.ID, &pc.SpeciesID, &pc.Name, &pc.Cultivar, &pc.CreatedAt, &pc.UpdatedAt, &pc.Genetics); err != nil {
 			return nil, err
 		}
 		Cultivars = append(Cultivars, pc)
@@ -71,14 +71,14 @@ func (repo *PlantCultivarTable) GetAll() ([]models.PlantCultivar, error) {
 // GetByID retrieves a plant cultivar identified by arg `id` from the database
 func (repo *PlantCultivarTable) GetByID(id string) (models.PlantCultivar, error) {
 	var pc models.PlantCultivar
-	err := repo.DB.QueryRow(queryGetPlantCultivarByID, id).Scan(&pc.Id, &pc.SpeciesId, &pc.Name, &pc.Cultivar, &pc.CreatedAt, &pc.UpdatedAt, &pc.Genetics)
+	err := repo.DB.QueryRow(queryGetPlantCultivarByID, id).Scan(&pc.ID, &pc.SpeciesID, &pc.Name, &pc.Cultivar, &pc.CreatedAt, &pc.UpdatedAt, &pc.Genetics)
 	return pc, err
 }
 
 // Update modifies an existing plant cultivar in the database
 func (repo *PlantCultivarTable) Update(pc *models.PlantCultivar) error {
-	err := repo.DB.QueryRow(queryUpdatePlantCultivar, pc.Id, pc.SpeciesId, pc.Name, pc.Cultivar, pc.Genetics).Scan(
-		&pc.Id, &pc.SpeciesId, &pc.Name, &pc.Cultivar, &pc.CreatedAt, &pc.UpdatedAt, &pc.Genetics,
+	err := repo.DB.QueryRow(queryUpdatePlantCultivar, pc.ID, pc.SpeciesID, pc.Name, pc.Cultivar, pc.Genetics).Scan(
+		&pc.ID, &pc.SpeciesID, &pc.Name, &pc.Cultivar, &pc.CreatedAt, &pc.UpdatedAt, &pc.Genetics,
 	)
 	return err
 }

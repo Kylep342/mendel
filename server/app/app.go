@@ -4,12 +4,16 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+
+	// "github.com/rs/zerolog"
+	// "github.com/rs/zerolog/log"
 
 	_ "github.com/jackc/pgx/stdlib"
 
@@ -30,8 +34,14 @@ type config struct {
 }
 
 // method to initialize config struct from environment variables
-func (conf *config) Configure(ctx context.Context) {
-	conf.sqlUrl = os.Getenv("DATABASE_URL")
+func (conf *config) Configure(ctx context.Context, env constants.EnvConfig) {
+	conf.sqlUrl = fmt.Sprint("%s://%s:%s@%s/%s",
+		env.Database.Dialect,
+		env.Database.User,
+		env.Database.Password,
+		env.Database.Port,
+		env.Database.Name)
+
 	// conf.redisPassword = os.Getenv("REDIS_PASSWORD")
 	// conf.redisHost = os.Getenv("REDIS_HOST")
 	// conf.redisPort = os.Getenv("REDIS_PORT")
@@ -61,22 +71,31 @@ func (a *App) InitializeRoutes() {
 		responses.RespondWithData(w, http.StatusOK, "ok")
 	})
 
-	plantSpeciesHandler := &handlers.CRUDHandler[models.PlantSpecies]{
-		Table: &db.PlantSpeciesTable{DB: a.DB},
-		New:   func() *models.PlantSpecies { return &models.PlantSpecies{} },
-	}
+	plantSpeciesHandler := handlers.NewCRUDHandler(
+		a.DB,
+		func() *models.PlantSpecies { return &models.PlantSpecies{} },
+		func(d *sql.DB) db.CRUDTable[models.PlantSpecies] {
+			return &db.PlantSpeciesTable{DB: d}
+		},
+	)
 	plantSpeciesHandler.RegisterRoutes(a.Router, constants.RoutePlantSpecies)
 
-	plantCultivarHandler := &handlers.CRUDHandler[models.PlantCultivar]{
-		Table: &db.PlantCultivarTable{DB: a.DB},
-		New:   func() *models.PlantCultivar { return &models.PlantCultivar{} },
-	}
+	plantCultivarHandler := handlers.NewCRUDHandler(
+		a.DB,
+		func() *models.PlantCultivar { return &models.PlantCultivar{} },
+		func(d *sql.DB) db.CRUDTable[models.PlantCultivar] {
+			return &db.PlantCultivarTable{DB: d}
+		},
+	)
 	plantCultivarHandler.RegisterRoutes(a.Router, constants.RoutePlantCultivar)
 
-	plantHandler := &handlers.CRUDHandler[models.Plant]{
-		Table: &db.PlantTable{DB: a.DB},
-		New:   func() *models.Plant { return &models.Plant{} },
-	}
+	plantHandler := handlers.NewCRUDHandler(
+		a.DB,
+		func() *models.Plant { return &models.Plant{} },
+		func(d *sql.DB) db.CRUDTable[models.Plant] {
+			return &db.PlantTable{DB: d}
+		},
+	)
 	plantHandler.RegisterRoutes(a.Router, constants.RoutePlant)
 }
 
@@ -84,8 +103,10 @@ func (a *App) InitializeRoutes() {
 func (a *App) Initialize() {
 	ctx := context.Background()
 	var err error
+	env := constants.LoadEnv()
 	conf.Configure(ctx)
 	a.Context = ctx
+	// zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 
 	// Postgres setup
 	a.DB, err = sql.Open("pgx", conf.sqlUrl)
@@ -106,6 +127,7 @@ func (a *App) Initialize() {
 
 	a.Router = chi.NewRouter()
 	a.Router.Use(middleware.Logger)
+	a.Router.Use(middleware.Recoverer)
 
 	a.InitializeRoutes()
 }

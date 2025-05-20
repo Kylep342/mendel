@@ -1,6 +1,6 @@
 package models
 
 type Model interface {
-	GetId() string
+	GetID() string
 	SetID(string)
 }

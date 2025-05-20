@@ -12,12 +12,29 @@ import (
 	"github.com/kylep342/mendel/responses"
 )
 
-type CRUDHandler[T any] struct {
+type CRUDHandler[T any, PT interface {
+	~*T
+	models.Model
+}] struct {
 	Table db.CRUDTable[T]
-	New   func() *T
+	New   func() PT
 }
 
-func (h *CRUDHandler[T]) RegisterRoutes(r chi.Router, basePath string) {
+func NewCRUDHandler[T any, PT interface {
+	~*T
+	models.Model
+}](
+	dbConn *sql.DB,
+	newModelFunc func() PT,
+	tableCreator func(d *sql.DB) db.CRUDTable[T],
+) *CRUDHandler[T, PT] {
+	return &CRUDHandler[T, PT]{
+		Table: tableCreator(dbConn),
+		New:   newModelFunc,
+	}
+}
+
+func (h *CRUDHandler[T, PT]) RegisterRoutes(r chi.Router, basePath string) {
 	r.Route(basePath, func(r chi.Router) {
 		r.Get("/", h.GetAll)
 		r.Post("/", h.Create)
@@ -27,16 +44,18 @@ func (h *CRUDHandler[T]) RegisterRoutes(r chi.Router, basePath string) {
 	})
 }
 
-func (h *CRUDHandler[T]) GetAll(w http.ResponseWriter, r *http.Request) {
+func (h *CRUDHandler[T, PT]) GetAll(w http.ResponseWriter, r *http.Request) {
 	items, err := h.Table.GetAll()
 	if err != nil {
+		// log.Printf("Error in GetAll: %v", err)
 		responses.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(items)
 }
 
-func (h *CRUDHandler[T]) Create(w http.ResponseWriter, r *http.Request) {
+func (h *CRUDHandler[T, PT]) Create(w http.ResponseWriter, r *http.Request) {
 	item := h.New()
 	if err := json.NewDecoder(r.Body).Decode(item); err != nil {
 		responses.RespondWithError(w, http.StatusBadRequest, err.Error())
@@ -50,7 +69,7 @@ func (h *CRUDHandler[T]) Create(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(item)
 }
 
-func (h *CRUDHandler[T]) GetByID(w http.ResponseWriter, r *http.Request) {
+func (h *CRUDHandler[T, PT]) GetByID(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	item, err := h.Table.GetByID(id)
 	if err != nil {
@@ -64,7 +83,7 @@ func (h *CRUDHandler[T]) GetByID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(item)
 }
 
-func (h *CRUDHandler[T]) Update(w http.ResponseWriter, r *http.Request) {
+func (h *CRUDHandler[T, PT]) Update(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	item := h.New()
 	if model, ok := any(item).(models.Model); ok {
@@ -81,7 +100,7 @@ func (h *CRUDHandler[T]) Update(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(item)
 }
 
-func (h *CRUDHandler[T]) Delete(w http.ResponseWriter, r *http.Request) {
+func (h *CRUDHandler[T, PT]) Delete(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if err := h.Table.Delete(id); err != nil {
 		responses.RespondWithError(w, http.StatusInternalServerError, err.Error())

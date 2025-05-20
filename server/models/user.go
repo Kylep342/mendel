@@ -5,7 +5,7 @@ import (
 )
 
 type User struct {
-	Id          string    `db:"id"`
+	ID          string    `db:"id"`
 	Username    string    `db:"username"`
 	Enabled     bool      `db:"enabled"`
 	WebSettings struct{}  `db:"web_settings"`

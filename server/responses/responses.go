@@ -15,11 +15,11 @@ func RespondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 }
 
 // RespondWithData is a wrapper function for responding on a successful request
-func RespondWithData(w http.ResponseWriter, code int, data string) {
-	RespondWithJSON(w, code, map[string]string{"data": data})
+func RespondWithData(w http.ResponseWriter, code int, data interface{}) {
+	RespondWithJSON(w, code, map[string]interface{}{"data": data})
 }
 
 // RespondWithError is a wrapper function for responding on an unsuccessful request
-func RespondWithError(w http.ResponseWriter, code int, message string) {
-	RespondWithJSON(w, code, map[string]string{"error": message})
+func RespondWithError(w http.ResponseWriter, code int, data interface{}) {
+	RespondWithJSON(w, code, map[string]interface{}{"error": data})
 }
