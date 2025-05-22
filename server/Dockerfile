@@ -25,7 +25,7 @@ CMD ["air"]
 ####################
 # Production build #
 ####################
-FROM golang:1.23-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
 
@@ -34,15 +34,15 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o webserver
+RUN go build -o mendel
 
 FROM alpine:latest
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 WORKDIR /app
 
-COPY --from=builder /app/webserver .
+COPY --from=builder /app/mendel .
 
 USER appuser
 EXPOSE 8080
-ENTRYPOINT ["./webserver"]
+ENTRYPOINT ["./mendel"]

@@ -35,10 +35,11 @@ type config struct {
 
 // method to initialize config struct from environment variables
 func (conf *config) Configure(ctx context.Context, env constants.EnvConfig) {
-	conf.sqlUrl = fmt.Sprint("%s://%s:%s@%s/%s",
+	conf.sqlUrl = fmt.Sprintf("%s://%s:%s@%s:%d/%s",
 		env.Database.Dialect,
 		env.Database.User,
 		env.Database.Password,
+		env.Database.Host,
 		env.Database.Port,
 		env.Database.Name)
 
@@ -50,7 +51,7 @@ func (conf *config) Configure(ctx context.Context, env constants.EnvConfig) {
 
 var conf = config{}
 
-// App contains necessary components to run the webserver
+// App is the singleton struct with components to run mendel
 // Router is a pointer to a chi router
 // Logger is an http handler
 // DB is a pointer to a db
@@ -65,11 +66,15 @@ type App struct {
 // InitializeRoutes creates all endpoints for the api
 func (a *App) InitializeRoutes() {
 	a.Router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		responses.RespondWithData(w, http.StatusOK, "mendel is alive!")
-	})
-	a.Router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		responses.RespondWithData(w, http.StatusOK, "ok")
 	})
+
+	internalHandler := handlers.NewInternalHandler(
+		a.DB,
+		constants.GetEnv(),
+	)
+
+	internalHandler.RegisterRoutes(a.Router, constants.RouteIndex)
 
 	plantSpeciesHandler := handlers.NewCRUDHandler(
 		a.DB,
@@ -104,9 +109,8 @@ func (a *App) Initialize() {
 	ctx := context.Background()
 	var err error
 	env := constants.LoadEnv()
-	conf.Configure(ctx)
+	conf.Configure(ctx, *env)
 	a.Context = ctx
-	// zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 
 	// Postgres setup
 	a.DB, err = sql.Open("pgx", conf.sqlUrl)

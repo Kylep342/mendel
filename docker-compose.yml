@@ -6,25 +6,22 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USERNAME: admin
+      POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
       POSTGRES_DB: mendel_core
     volumes:
       - ./server/db/migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - mendel
+      - mendel_network
 
-  webserver:
+  mendel:
     build:
       context: ./server
       target: dev
-    container_name: webserver
-    depends_on:
-      - postgres
-    environment:
-      SERVER_PORT: 8080
-      DATABASE_URL: postgres://admin:password@postgres:5432/mendel_core
+    container_name: mendel
+    env_file:
+      - ./server/.env.dev
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 60s
@@ -35,18 +32,20 @@ services:
     volumes:
       - ./server:/app
     networks:
-      - mendel
+      - mendel_network
+    depends_on:
+      - postgres
     profiles:
       - dev
 
-  web:
+  mendel_web:
     image: node:20
     container_name: web
     working_dir: /app
     environment:
-      - SERVER_URL=http://webserver:8080
+      - SERVER_URL=http://mendel:8080
     networks:
-      - mendel
+      - mendel_network
     ports:
       - "5173:5173"
     volumes:
@@ -58,10 +57,12 @@ services:
              wait"
     depends_on:
       - postgres
-      - webserver
+      - mendel
+    profiles:
+      - dev
 
 volumes:
   postgres_data:
 
 networks:
-  mendel:
+  mendel_network:

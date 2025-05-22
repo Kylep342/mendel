@@ -18,7 +18,6 @@ import routes from './constants/routes'
       </nav>
     </div> -->
   </header>
-
   <div>
     <ul>
       <li v-for="route in routes" :key="route">

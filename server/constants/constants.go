@@ -1,17 +1,21 @@
 package constants
 
 const (
+	// Environment/App class constants
 	EnvDevelopment = "development"
 	EnvStaging     = "staging"
 	EnvProduction  = "production"
 
-	DBInitQuery        = `SET search_path = ` + SchemaMendelCore + `, public;`
+	// Databse constants
 	SchemaMendelCore   = "mendel_core"
+	DBInitQuery        = `SET search_path TO ` + SchemaMendelCore + `, public;`
 	TablePlant         = "plant"
 	TablePlantCultivar = "plant_cultivar"
 	TablePlantSpecies  = "plant_species"
 	TableUser          = "user"
 
+	// Routing constants
+	RouteEnv           = "/env"
 	RouteHealth        = "/health"
 	RouteIndex         = "/"
 	RoutePlant         = "/plant"
