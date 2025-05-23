@@ -20,7 +20,7 @@ import (
 	"github.com/kylep342/mendel/constants"
 	"github.com/kylep342/mendel/db"
 	"github.com/kylep342/mendel/handlers"
-	"github.com/kylep342/mendel/models"
+	"github.com/kylep342/mendel/models/plants"
 	"github.com/kylep342/mendel/responses"
 )
 
@@ -78,8 +78,8 @@ func (a *App) InitializeRoutes() {
 
 	plantSpeciesHandler := handlers.NewCRUDHandler(
 		a.DB,
-		func() *models.PlantSpecies { return &models.PlantSpecies{} },
-		func(d *sql.DB) db.CRUDTable[models.PlantSpecies] {
+		func() *plants.PlantSpecies { return &plants.PlantSpecies{} },
+		func(d *sql.DB) db.CRUDTable[plants.PlantSpecies] {
 			return &db.PlantSpeciesTable{DB: d}
 		},
 	)
@@ -87,8 +87,8 @@ func (a *App) InitializeRoutes() {
 
 	plantCultivarHandler := handlers.NewCRUDHandler(
 		a.DB,
-		func() *models.PlantCultivar { return &models.PlantCultivar{} },
-		func(d *sql.DB) db.CRUDTable[models.PlantCultivar] {
+		func() *plants.PlantCultivar { return &plants.PlantCultivar{} },
+		func(d *sql.DB) db.CRUDTable[plants.PlantCultivar] {
 			return &db.PlantCultivarTable{DB: d}
 		},
 	)
@@ -96,8 +96,8 @@ func (a *App) InitializeRoutes() {
 
 	plantHandler := handlers.NewCRUDHandler(
 		a.DB,
-		func() *models.Plant { return &models.Plant{} },
-		func(d *sql.DB) db.CRUDTable[models.Plant] {
+		func() *plants.Plant { return &plants.Plant{} },
+		func(d *sql.DB) db.CRUDTable[plants.Plant] {
 			return &db.PlantTable{DB: d}
 		},
 	)

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/kylep342/mendel/constants"
-	"github.com/kylep342/mendel/models"
+	"github.com/kylep342/mendel/models/plants"
 )
 
 const (
@@ -48,16 +48,16 @@ type PlantTable struct {
 }
 
 // GetAll retrieves all plants from the database
-func (t *PlantTable) GetAll() ([]models.Plant, error) {
+func (t *PlantTable) GetAll() ([]plants.Plant, error) {
 	rows, err := t.DB.Query(queryGetAllPlants)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var result []models.Plant
+	var result []plants.Plant
 	for rows.Next() {
-		var ps models.Plant
+		var ps plants.Plant
 		if err := rows.Scan(
 			&ps.ID,
 			&ps.CultivarID,
@@ -77,8 +77,8 @@ func (t *PlantTable) GetAll() ([]models.Plant, error) {
 }
 
 // GetByID retrieves a plant by ID from the database
-func (t *PlantTable) GetByID(id string) (models.Plant, error) {
-	var ps models.Plant
+func (t *PlantTable) GetByID(id string) (plants.Plant, error) {
+	var ps plants.Plant
 	err := t.DB.QueryRow(
 		queryGetPlantByID,
 		id).Scan(
@@ -96,7 +96,7 @@ func (t *PlantTable) GetByID(id string) (models.Plant, error) {
 }
 
 // Create saves a new plant to the database
-func (t *PlantTable) Create(ps *models.Plant) error {
+func (t *PlantTable) Create(ps *plants.Plant) error {
 	err := t.DB.QueryRow(queryCreatePlant,
 		ps.CultivarID,
 		ps.SpeciesID,
@@ -114,7 +114,7 @@ func (t *PlantTable) Create(ps *models.Plant) error {
 }
 
 // Update changes plants by IDs from the database
-func (t *PlantTable) Update(ps *models.Plant) error {
+func (t *PlantTable) Update(ps *plants.Plant) error {
 	_, err := t.DB.Exec(queryUpdatePlant, ps.ID, ps.CultivarID, ps.SpeciesID, ps.SeedID, ps.PollenID, ps.Generation, ps.PlantedAt, ps.HarvestedAt, ps.Genetics, ps.Labels)
 	return err
 }

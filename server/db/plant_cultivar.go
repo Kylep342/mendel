@@ -4,7 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/kylep342/mendel/constants"
-	"github.com/kylep342/mendel/models"
+	"github.com/kylep342/mendel/models/plants"
 )
 
 const (
@@ -44,22 +44,22 @@ type PlantCultivarTable struct {
 }
 
 // Create inserts a new plant cultivar into the database
-func (repo *PlantCultivarTable) Create(pc *models.PlantCultivar) error {
+func (repo *PlantCultivarTable) Create(pc *plants.PlantCultivar) error {
 	err := repo.DB.QueryRow(queryCreatePlantCultivar, pc.SpeciesID, pc.Name, pc.Cultivar, pc.Genetics).Scan(&pc.ID, &pc.CreatedAt, &pc.UpdatedAt)
 	return err
 }
 
 // GetAll retrieves all plant cultivars from the database
-func (repo *PlantCultivarTable) GetAll() ([]models.PlantCultivar, error) {
+func (repo *PlantCultivarTable) GetAll() ([]plants.PlantCultivar, error) {
 	rows, err := repo.DB.Query(queryGetAllPlantCultivars)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var Cultivars []models.PlantCultivar
+	var Cultivars []plants.PlantCultivar
 	for rows.Next() {
-		var pc models.PlantCultivar
+		var pc plants.PlantCultivar
 		if err := rows.Scan(&pc.ID, &pc.SpeciesID, &pc.Name, &pc.Cultivar, &pc.CreatedAt, &pc.UpdatedAt, &pc.Genetics); err != nil {
 			return nil, err
 		}
@@ -69,14 +69,14 @@ func (repo *PlantCultivarTable) GetAll() ([]models.PlantCultivar, error) {
 }
 
 // GetByID retrieves a plant cultivar identified by arg `id` from the database
-func (repo *PlantCultivarTable) GetByID(id string) (models.PlantCultivar, error) {
-	var pc models.PlantCultivar
+func (repo *PlantCultivarTable) GetByID(id string) (plants.PlantCultivar, error) {
+	var pc plants.PlantCultivar
 	err := repo.DB.QueryRow(queryGetPlantCultivarByID, id).Scan(&pc.ID, &pc.SpeciesID, &pc.Name, &pc.Cultivar, &pc.CreatedAt, &pc.UpdatedAt, &pc.Genetics)
 	return pc, err
 }
 
 // Update modifies an existing plant cultivar in the database
-func (repo *PlantCultivarTable) Update(pc *models.PlantCultivar) error {
+func (repo *PlantCultivarTable) Update(pc *plants.PlantCultivar) error {
 	err := repo.DB.QueryRow(queryUpdatePlantCultivar, pc.ID, pc.SpeciesID, pc.Name, pc.Cultivar, pc.Genetics).Scan(
 		&pc.ID, &pc.SpeciesID, &pc.Name, &pc.Cultivar, &pc.CreatedAt, &pc.UpdatedAt, &pc.Genetics,
 	)

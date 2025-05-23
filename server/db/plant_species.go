@@ -4,7 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/kylep342/mendel/constants"
-	"github.com/kylep342/mendel/models"
+	"github.com/kylep342/mendel/models/plants"
 )
 
 const (
@@ -46,23 +46,23 @@ type PlantSpeciesTable struct {
 }
 
 // Create inserts a new plant species into the database
-func (t *PlantSpeciesTable) Create(ps *models.PlantSpecies) error {
+func (t *PlantSpeciesTable) Create(ps *plants.PlantSpecies) error {
 	query := queryCreatePlantSpecies
 	err := t.DB.QueryRow(query, ps.Name, ps.Taxon).Scan(&ps.ID, &ps.CreatedAt, &ps.UpdatedAt)
 	return err
 }
 
 // GetAll retrieves all plant species from the database
-func (t *PlantSpeciesTable) GetAll() ([]models.PlantSpecies, error) {
+func (t *PlantSpeciesTable) GetAll() ([]plants.PlantSpecies, error) {
 	rows, err := t.DB.Query(queryGetAllPlantSpecies)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var Species []models.PlantSpecies
+	var Species []plants.PlantSpecies
 	for rows.Next() {
-		var ps models.PlantSpecies
+		var ps plants.PlantSpecies
 		if err := rows.Scan(&ps.ID, &ps.Name, &ps.Taxon, &ps.CreatedAt, &ps.UpdatedAt); err != nil {
 			return nil, err
 		}
@@ -72,14 +72,14 @@ func (t *PlantSpeciesTable) GetAll() ([]models.PlantSpecies, error) {
 }
 
 // GetByID retrieves a plant species identified by argument `id` from the database
-func (t *PlantSpeciesTable) GetByID(id string) (models.PlantSpecies, error) {
-	var ps models.PlantSpecies
+func (t *PlantSpeciesTable) GetByID(id string) (plants.PlantSpecies, error) {
+	var ps plants.PlantSpecies
 	err := t.DB.QueryRow(queryGetByIDPlantSpecies, id).Scan(&ps.ID, &ps.Name, &ps.Taxon, &ps.CreatedAt, &ps.UpdatedAt)
 	return ps, err
 }
 
 // Update updates a plant species identified by argument `id` in the database
-func (t *PlantSpeciesTable) Update(ps *models.PlantSpecies) error {
+func (t *PlantSpeciesTable) Update(ps *plants.PlantSpecies) error {
 	err := t.DB.QueryRow(queryUpdatePlantSpecies, ps.Name, ps.Taxon, ps.ID).Scan(
 		&ps.ID, &ps.Name, &ps.Taxon, &ps.CreatedAt, &ps.UpdatedAt,
 	)

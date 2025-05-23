@@ -12,7 +12,7 @@ import (
 	"github.com/kylep342/mendel/responses"
 )
 
-type CRUDHandler[T any, PT interface {
+type CRUDHandler[T interface{}, PT interface {
 	~*T
 	models.Model
 }] struct {
@@ -20,7 +20,7 @@ type CRUDHandler[T any, PT interface {
 	New   func() PT
 }
 
-func NewCRUDHandler[T any, PT interface {
+func NewCRUDHandler[T interface{}, PT interface {
 	~*T
 	models.Model
 }](
