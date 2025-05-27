@@ -1,6 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import routes from '../constants/routes'
-import HomeView from '../views/HomeView.vue'
+import routes from '@/constants/routes'
+import HomeView from '@/views/HomeView.vue'
+import StatusView from '@/views/Status.vue'
+import PlantView from '@/views/PlantView.vue'
+import CultivarView from '@/views/CultivarView.vue'
+import SpeciesView from '@/views/SpeciesView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -10,14 +14,10 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
     },
-    {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue'),
-    },
+    {path: routes.ROUTE_INTERNAL, name: 'internal', component: StatusView},
+    {path: routes.ROUTE_PLANT_CULTIVAR, name: 'cultivar', component: CultivarView},
+    {path: routes.ROUTE_PLANT_SPECIES, name: 'species', component: SpeciesView},
+    {path: routes.ROUTE_PLANT, name: 'plant', component: PlantView},
   ],
 })
 

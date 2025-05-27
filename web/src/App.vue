@@ -6,7 +6,7 @@ import routes from './constants/routes'
 
 <template>
   <HeaderBar />
-  <!-- <RouterView /> -->
+  <RouterView />
 </template>
 
 <style scoped>
