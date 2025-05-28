@@ -5,7 +5,8 @@ import BaseCard from '@/components/ui/BaseCard.vue'; // Make sure to import your
 
 // Fetch the data from your /env endpoint and instruct useFetch to parse it as JSON.
 // The `data` ref will be populated with the JSON object.
-const { isFetching, error, data: envConfig } = useFetch('/env').json();
+const { isFetching, error, data: health } = useFetch('/health').json();
+const { isFetching: isFetchingEnv, error: errorEnv, data: envConfig } = useFetch('/env').json();
 </script>
 
 <template>
@@ -13,16 +14,16 @@ const { isFetching, error, data: envConfig } = useFetch('/env').json();
     <base-card>
       <template #cardTitle>
         <header class="p-4">
-          <h1 class="text-xl font-bold">Server Environment</h1>
+          <h1 class="text-xl font-bold">Server Status</h1>
         </header>
       </template>
 
       <template #cardBody>
-        <div v-if="isFetching" class="p-8 text-center">
+        <div v-if="isFetchingEnv" class="p-8 text-center">
           <p>Loading configuration...</p>
         </div>
 
-        <div v-else-if="error" class="p-8 text-red-600">
+        <div v-else-if="errorEnv" class="p-8 text-red-600">
           <p class="font-bold">Failed to load environment variables.</p>
           <pre class="mt-2 text-sm bg-red-50 p-2 rounded">Error: {{ error.message }}</pre>
         </div>

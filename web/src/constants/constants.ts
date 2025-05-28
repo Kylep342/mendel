@@ -5,6 +5,7 @@ const BTN_CREATE = 'Create';
 const BTN_DELETE = 'Delete';
 const BTN_DETAILS = 'Details';
 const BTN_EDIT = 'Edit';
+const BTN_HOME = 'Home';
 const BTN_LOAD = 'Load';
 const BTN_MENU = 'Menu';
 const BTN_OFF = 'Off';
@@ -25,6 +26,7 @@ export default Object.freeze({
     BTN_DELETE,
     BTN_DETAILS,
     BTN_EDIT,
+    BTN_HOME,
     BTN_LOAD,
     BTN_MENU,
     BTN_OFF,

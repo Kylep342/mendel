@@ -14,10 +14,11 @@ const router = useRouter();
 // );
 
 const buttons: Array<Button> = [
+  { text: constants.BTN_HOME, onClick: () => router.push(routes.ROUTE_INDEX)},
   { text: constants.BTN_ADMIN, onClick: () => router.push(routes.ROUTE_INTERNAL)},
-  { text: constants.BTN_PLANT, onClick: () => router.push(routes.ROUTE_PLANT_SPECIES)},
+  { text: constants.BTN_PLANT, onClick: () => router.push(routes.ROUTE_PLANT)},
   { text: constants.BTN_PLANT_CULTIVAR, onClick: () => router.push(routes.ROUTE_PLANT_CULTIVAR)},
-  { text: constants.BTN_PLANT_SPECIES, onClick: () => router.push(routes.ROUTE_PLANT) },
+  { text: constants.BTN_PLANT_SPECIES, onClick: () => router.push(routes.ROUTE_PLANT_SPECIES) },
 ];
 </script>
 

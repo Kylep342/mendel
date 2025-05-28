@@ -3,5 +3,6 @@
 
 <template>
   <div>
+    <h1>Soy los plantos!</h1>
   </div>
 </template>
