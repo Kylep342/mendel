@@ -1,11 +1,12 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"time"
 
-	"github.com/kylep342/mendel/constants"
-	"github.com/kylep342/mendel/models/plants"
+	"github.com/kylep342/mendel/internal/constants"
+	"github.com/kylep342/mendel/internal/models/plants"
 )
 
 const (
@@ -48,8 +49,8 @@ type PlantTable struct {
 }
 
 // GetAll retrieves all plants from the database
-func (t *PlantTable) GetAll() ([]plants.Plant, error) {
-	rows, err := t.DB.Query(queryGetAllPlants)
+func (t *PlantTable) GetAll(ctx context.Context) ([]plants.Plant, error) {
+	rows, err := t.DB.QueryContext(ctx, queryGetAllPlants)
 	if err != nil {
 		return nil, err
 	}
@@ -77,9 +78,10 @@ func (t *PlantTable) GetAll() ([]plants.Plant, error) {
 }
 
 // GetByID retrieves a plant by ID from the database
-func (t *PlantTable) GetByID(id string) (plants.Plant, error) {
+func (t *PlantTable) GetByID(ctx context.Context, id string) (plants.Plant, error) {
 	var ps plants.Plant
-	err := t.DB.QueryRow(
+	err := t.DB.QueryRowContext(
+		ctx,
 		queryGetPlantByID,
 		id).Scan(
 		&ps.ID,
@@ -96,8 +98,10 @@ func (t *PlantTable) GetByID(id string) (plants.Plant, error) {
 }
 
 // Create saves a new plant to the database
-func (t *PlantTable) Create(ps *plants.Plant) error {
-	err := t.DB.QueryRow(queryCreatePlant,
+func (t *PlantTable) Create(ctx context.Context, ps *plants.Plant) error {
+	err := t.DB.QueryRowContext(
+		ctx,
+		queryCreatePlant,
 		ps.CultivarID,
 		ps.SpeciesID,
 		ps.SeedID,
@@ -114,13 +118,13 @@ func (t *PlantTable) Create(ps *plants.Plant) error {
 }
 
 // Update changes plants by IDs from the database
-func (t *PlantTable) Update(ps *plants.Plant) error {
-	_, err := t.DB.Exec(queryUpdatePlant, ps.ID, ps.CultivarID, ps.SpeciesID, ps.SeedID, ps.PollenID, ps.Generation, ps.PlantedAt, ps.HarvestedAt, ps.Genetics, ps.Labels)
+func (t *PlantTable) Update(ctx context.Context, ps *plants.Plant) error {
+	_, err := t.DB.ExecContext(ctx, queryUpdatePlant, ps.ID, ps.CultivarID, ps.SpeciesID, ps.SeedID, ps.PollenID, ps.Generation, ps.PlantedAt, ps.HarvestedAt, ps.Genetics, ps.Labels)
 	return err
 }
 
 // Delete removes a plant by ID from the database
-func (t *PlantTable) Delete(id string) error {
-	_, err := t.DB.Exec(queryDeletePlant, id)
+func (t *PlantTable) Delete(ctx context.Context, id string) error {
+	_, err := t.DB.ExecContext(ctx, queryDeletePlant, id)
 	return err
 }

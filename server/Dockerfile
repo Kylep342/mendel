@@ -3,7 +3,7 @@
 ##############################
 # Development build with Air #
 ##############################
-FROM golang:1.23-alpine AS dev
+FROM golang:1.24-alpine AS dev
 
 RUN apk add --no-cache git curl
 
@@ -34,15 +34,15 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o mendel
+RUN CGO_ENABLED=0 go build -o mendel-server ./cmd/mendel-server/
 
 FROM alpine:latest
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 WORKDIR /app
 
-COPY --from=builder /app/mendel .
+COPY --from=builder /app/mendel-server .
 
 USER appuser
 EXPOSE 8080
-ENTRYPOINT ["./mendel"]
+ENTRYPOINT ["./mendel-server"]

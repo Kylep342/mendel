@@ -2,10 +2,11 @@
 import { useFetch } from '@vueuse/core';
 import { withServer } from '@/functions/withServer';
 import BaseCard from '@/components/ui/BaseCard.vue'; // Make sure to import your BaseCard
+import FetchWrapper from '@/components/ui/FetchWrapper.vue'; // Make sure to import your BaseCard
 
 // Fetch the data from your /env endpoint and instruct useFetch to parse it as JSON.
 // The `data` ref will be populated with the JSON object.
-const { isFetching, error, data: health } = useFetch('/health').json();
+const { isFetching: isFetchingHealth, error: errorHealth, data: health } = useFetch('/health').json();
 const { isFetching: isFetchingEnv, error: errorEnv, data: envConfig } = useFetch('/env').json();
 </script>
 
@@ -19,16 +20,41 @@ const { isFetching: isFetchingEnv, error: errorEnv, data: envConfig } = useFetch
       </template>
 
       <template #cardBody>
-        <div v-if="isFetchingEnv" class="p-8 text-center">
+        <FetchWrapper
+          :isFetching="isFetchingHealth"
+          :error="errorHealth"
+          :data="health"
+        >
+        <template #data>
+          <table class="config-table">
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(value, key) in health['data']" :key="key">
+                <td>{{ key }}</td>
+                <td>{{ value }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </template>
+      </FetchWrapper>
+        <FetchWrapper
+          :isFetching="isFetchingEnv"
+          :error="errorEnv"
+          :data="envConfig"
+        >
+        <template #isFetching>
           <p>Loading configuration...</p>
-        </div>
-
-        <div v-else-if="errorEnv" class="p-8 text-red-600">
+        </template>
+        <template #error>
           <p class="font-bold">Failed to load environment variables.</p>
-          <pre class="mt-2 text-sm bg-red-50 p-2 rounded">Error: {{ error.message }}</pre>
-        </div>
-
-        <div v-else-if="envConfig" class="overflow-x-auto">
+          <pre class="mt-2 text-sm bg-red-50 p-2 rounded">Error: {{ errorEnv.message }}</pre>
+        </template>
+        <template #data>
           <table class="config-table">
             <thead>
               <tr>
@@ -43,7 +69,8 @@ const { isFetching: isFetchingEnv, error: errorEnv, data: envConfig } = useFetch
               </tr>
             </tbody>
           </table>
-        </div>
+        </template>
+      </FetchWrapper>
       </template>
     </base-card>
   </div>

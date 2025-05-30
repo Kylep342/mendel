@@ -77,16 +77,7 @@ func LoadEnv() *EnvConfig {
 	}
 
 	var cfg EnvConfig
-	// The first argument to Process is a global prefix for all environment variables.
-	// Since we are using prefixes on the nested struct fields (e.g., `envconfig:"SERVER"`),
-	// we pass an empty string here. The library will combine these prefixes.
-	// For example, `envconfig:"SERVER"` and `envconfig:"PORT"` results in `SERVER_PORT`.
-	err := envconfig.Process("", &cfg)
-	if err != nil {
-		// The library provides detailed errors, e.g., for missing required fields
-		// or type conversion errors.
-		log.Fatalf("FATAL: Failed to process environment configuration: %v", err)
-	}
+	envconfig.MustProcess("", &cfg)
 
 	if !isValidValue(cfg.App.Environment, allowedEnvironments, true) {
 		log.Fatalf("FATAL: Invalid APP_ENV value '%s'. Allowed values are: %v",

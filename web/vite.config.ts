@@ -21,7 +21,11 @@ export default defineConfig({
     '/env': {
       target: 'http://mendel:8080',
       changeOrigin: true,
-    }
+    },
+    '/health': {
+      target: 'http://mendel:8080',
+      changeOrigin: true,
+    },
   }
   }
 })

@@ -15,11 +15,11 @@ services:
     networks:
       - mendel_network
 
-  mendel:
+  mendel-server:
     build:
       context: ./server
+      dockerfile: ./Dockerfile
       target: dev
-    container_name: mendel
     env_file:
       - ./server/.env.dev
     healthcheck:

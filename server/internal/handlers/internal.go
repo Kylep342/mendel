@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	"context"
 	"database/sql"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/kylep342/mendel/constants"
-	"github.com/kylep342/mendel/responses"
+	"github.com/kylep342/mendel/internal/constants"
+	"github.com/kylep342/mendel/pkg/responses"
 )
 
 type InternalHandler struct {
@@ -32,6 +34,9 @@ func (h *InternalHandler) RegisterRoutes(r chi.Router, basePath string) {
 //   - db
 //   - http
 func (h *InternalHandler) Healthcheck(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+
+	defer cancel()
 
 	// initialize per-component stats
 	componentStats := map[string]bool{
@@ -40,7 +45,7 @@ func (h *InternalHandler) Healthcheck(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check readiness per component
-	err := h.dbConn.Ping()
+	err := h.dbConn.PingContext(ctx)
 	if err == nil {
 		componentStats["db"] = true
 	}

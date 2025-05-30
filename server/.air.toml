@@ -1,0 +1,18 @@
+# .air.toml
+# Working directory
+root = "."
+tmp_dir = "tmp"
+
+[build]
+cmd = "go build -o ./tmp/mendel-server ./cmd/mendel-server/"
+bin = "tmp/mendel-server"
+
+# ... rest of your air config ...
+include_ext = ["go", "tpl", "tmpl", "html"]
+exclude_dir = ["assets", "tmp", "vendor"]
+
+[log]
+time = true
+
+[misc]
+clean_on_exit = true
