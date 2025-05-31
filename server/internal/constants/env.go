@@ -3,6 +3,7 @@ package constants
 import (
 	"log"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/kelseyhightower/envconfig"
@@ -46,11 +47,11 @@ type EnvConfig struct {
 }
 
 // globalEnvConfig holds the loaded environment configuration (singleton).
-var globalEnvConfig *EnvConfig
-
 var (
+	globalEnvConfig *EnvConfig
+	loadConfigOnce  sync.Once
+
 	allowedEnvironments = []string{EnvDevelopment, EnvStaging, EnvProduction}
-	// allowedLogLevels = []string{}
 )
 
 func isValidValue(value string, allowedValues []string, caseSensitive bool) bool {
@@ -68,40 +69,37 @@ func isValidValue(value string, allowedValues []string, caseSensitive bool) bool
 	return false
 }
 
-// LoadEnv loads configuration from environment variables into the EnvConfig struct
-// using the `envconfig` library which processes struct tags.
-// It should be called once at application startup.
-func LoadEnv() *EnvConfig {
-	if globalEnvConfig != nil {
-		return globalEnvConfig // Already loaded
-	}
-
+// loadEnvInternal contains the actual logic to load and validate the configuration.
+// It will be called by GetEnv via loadConfigOnce.Do() exactly once.
+func loadEnvInternal() {
+	log.Println("INFO: Initializing and loading environment configuration...") // Log will show this runs once
 	var cfg EnvConfig
-	envconfig.MustProcess("", &cfg)
+	envconfig.MustProcess("", &cfg) // MustProcess will panic on error, simplifying error handling here
 
+	// Validate environment
 	if !isValidValue(cfg.App.Environment, allowedEnvironments, true) {
 		log.Fatalf("FATAL: Invalid APP_ENV value '%s'. Allowed values are: %v",
 			cfg.App.Environment, allowedEnvironments)
 	}
 
-	// Optional: Additional custom validation after processing
 	if cfg.App.Environment == EnvProduction && cfg.Database.Password == "" {
-		// Note: `required:"true"` on the Password field for production is often preferred.
-		// This is a secondary check or if `required` isn't granular enough.
 		log.Printf("WARN: DB_PASSWORD environment variable is not set in production. This might be a security risk or cause connection failure.")
 	}
-	// You can add more complex cross-field validations here if needed.
 
 	globalEnvConfig = &cfg
 	log.Println("INFO: Environment configuration loaded successfully.")
-	return globalEnvConfig
 }
 
 // GetEnv returns the loaded environment configuration.
-// It panics if LoadEnv has not been called first.
+// It ensures that the configuration is loaded exactly once, in a thread-safe manner.
+// This function can now be the single point of access for your configuration.
 func GetEnv() *EnvConfig {
+	// loadConfigOnce.Do is a thread-safe one-time initalization
+	loadConfigOnce.Do(loadEnvInternal)
+
 	if globalEnvConfig == nil {
-		log.Fatal("FATAL: Environment configuration has not been loaded. Call constants.LoadEnv() in main.")
+		// This should ideally not happen if loadEnvInternal panics on critical failure.
+		log.Fatal("FATAL: Environment configuration is nil after attempting to load.")
 	}
 	return globalEnvConfig
 }

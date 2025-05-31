@@ -59,7 +59,7 @@ services:
              wait"
     depends_on:
       - postgres
-      - mendel
+      - mendel-server
     profiles:
       - dev
 

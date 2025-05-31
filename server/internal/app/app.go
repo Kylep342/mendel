@@ -5,14 +5,14 @@ package app
 import (
 	"context"
 	"database/sql"
-	"errors" // Import the errors package
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"os/signal" // Import the signal package
-	"syscall"   // Import the syscall package
-	"time"      // Import the time package
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
