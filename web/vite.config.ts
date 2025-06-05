@@ -18,14 +18,14 @@ export default defineConfig({
   server:{
     host: '0.0.0.0',
     proxy: {
-    '/env': {
-      target: 'http://mendel-server:8080',
-      changeOrigin: true,
-    },
-    '/health': {
-      target: 'http://mendel-server:8080',
-      changeOrigin: true,
-    },
-  }
+      '/env': {
+        target: 'http://mendel-server:8080',
+        changeOrigin: true,
+      },
+      '/health': {
+        target: 'http://mendel-server:8080',
+        changeOrigin: true,
+      },
+    }
   }
 })
