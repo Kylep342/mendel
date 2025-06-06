@@ -2,6 +2,12 @@ services:
   postgres:
     image: postgres:16.6
     container_name: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
     restart: unless-stopped
     ports:
       - "5432:5432"
@@ -53,13 +59,15 @@ services:
     volumes:
       - ./web:/app
     command: >
-      sh -c "npm install &&
-             mkdir -p logs &&
-             npm run dev
-             wait"
+      /bin/bash -c "npm install &&
+        mkdir -p logs &&
+        npm run dev
+        wait"
     depends_on:
-      - postgres
-      - mendel-server
+      postgres:
+        condition: service_healthy
+      mendel-server:
+        condition: service_healthy
     profiles:
       - dev
 

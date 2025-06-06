@@ -12,12 +12,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func RunServer(h http.Handler, host string, port string, env *constants.EnvConfig) {
+func RunServer(h http.Handler, env *constants.EnvConfig) {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
 	srv := &http.Server{
-		Addr:         fmt.Sprintf("%s:%s", host, port),
+		Addr:         fmt.Sprintf("%s:%s", env.Server.Host, env.Server.Port),
 		Handler:      h,
 		ReadTimeout:  env.Server.ReadTimeout,
 		WriteTimeout: env.Server.WriteTimeout,

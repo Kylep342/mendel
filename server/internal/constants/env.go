@@ -1,12 +1,12 @@
 package constants
 
 import (
-	"log"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/kelseyhightower/envconfig"
+	"github.com/rs/zerolog/log"
 )
 
 // EnvConfig is a singleton struct containing runtime constants
@@ -69,16 +69,15 @@ func isValidValue(value string, allowedValues []string, caseSensitive bool) bool
 	return false
 }
 
-// loadEnv contains the actual logic to load and validate the configuration.
-// It will be called by Env via loadConfigOnce.Do() exactly once.
+// loadEnv contains the logic to load and validate environment configuration.
 func loadEnv() {
-	log.Println("INFO: Initializing and loading environment configuration...") // Log will show this runs once
+	log.Info().Msg("Initializing and loading environment configuration...")
 	var cfg EnvConfig
 	envconfig.MustProcess("", &cfg) // MustProcess will panic on error, simplifying error handling here
 
 	// Validate environment
 	if !isValidValue(cfg.App.Environment, allowedEnvironments, true) {
-		log.Fatalf("FATAL: Invalid APP_ENV value '%s'. Allowed values are: %v",
+		log.Fatal().Msgf("Invalid APP_ENV value '%s'. Allowed values are: %v",
 			cfg.App.Environment, allowedEnvironments)
 	}
 
@@ -87,7 +86,7 @@ func loadEnv() {
 	}
 
 	globalEnvConfig = &cfg
-	log.Println("INFO: Environment configuration loaded successfully.")
+	log.Info().Msg("Environment configuration loaded successfully.")
 }
 
 // Env returns the loaded environment configuration.
@@ -99,7 +98,7 @@ func Env() *EnvConfig {
 
 	if globalEnvConfig == nil {
 		// This should ideally not happen if loadEnvInternal panics on critical failure.
-		log.Fatal("FATAL: Environment configuration is nil after attempting to load.")
+		log.Fatal().Msg("FATAL: Environment configuration is nil after attempting to load.")
 	}
 	return globalEnvConfig
 }

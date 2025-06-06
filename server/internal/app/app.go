@@ -7,7 +7,6 @@ import (
 	"database/sql"
 	"fmt"
 
-	// "log"
 	"net/http"
 	"time"
 
@@ -73,8 +72,6 @@ func (a *App) Initialize(env *constants.EnvConfig) {
 
 // InitializeRoutes creates all endpoints for the api
 func (a *App) InitializeRoutes(env *constants.EnvConfig) {
-	// ... (your existing route initialization logic is perfect)
-	// You can now pass the `env` to any handlers that might need it.
 	a.Router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"data": "ok"})
 	})
@@ -90,7 +87,6 @@ func (a *App) InitializeRoutes(env *constants.EnvConfig) {
 			return &db.PlantSpeciesTable{DB: d}
 		},
 	)
-	// plantSpeciesHandler.RegisterRoutes(a.Router, constants.RoutePlantSpecies)
 	plantSpeciesHandler.RegisterRoutes(a.Router, constants.RoutePlantSpecies)
 
 	plantCultivarHandler := handlers.NewCRUDHandler(
@@ -101,7 +97,6 @@ func (a *App) InitializeRoutes(env *constants.EnvConfig) {
 			return &db.PlantCultivarTable{DB: d}
 		},
 	)
-	// plantCultivarHandler.RegisterRoutes(a.Router, constants.RoutePlantCultivar)
 	plantCultivarHandler.RegisterRoutes(a.Router, constants.RoutePlantCultivar)
 
 	plantHandler := handlers.NewCRUDHandler(
@@ -112,13 +107,11 @@ func (a *App) InitializeRoutes(env *constants.EnvConfig) {
 			return &db.PlantTable{DB: d}
 		},
 	)
-	// plantHandler.RegisterRoutes(a.Router, constants.RoutePlant)
 	plantHandler.RegisterRoutes(a.Router, constants.RoutePlant)
 }
 
 // Run starts the app and now includes graceful shutdown logic.
 // It uses the timeout values from your environment configuration.
 func (a *App) Run(env *constants.EnvConfig) {
-	// RunServer(a.Router, env.Server.Host, env.Server.Port, env)
-	RunServer(a.Router, env.Server.Host, env.Server.Port, env)
+	RunServer(a.Router, env)
 }
