@@ -11,7 +11,7 @@ import (
 
 func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
-	env := constants.GetEnv()
+	env := constants.Env()
 
 	log.Info().Msg("Initializing app")
 	a := app.App{}

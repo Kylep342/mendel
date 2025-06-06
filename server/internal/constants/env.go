@@ -69,9 +69,9 @@ func isValidValue(value string, allowedValues []string, caseSensitive bool) bool
 	return false
 }
 
-// loadEnvInternal contains the actual logic to load and validate the configuration.
-// It will be called by GetEnv via loadConfigOnce.Do() exactly once.
-func loadEnvInternal() {
+// loadEnv contains the actual logic to load and validate the configuration.
+// It will be called by Env via loadConfigOnce.Do() exactly once.
+func loadEnv() {
 	log.Println("INFO: Initializing and loading environment configuration...") // Log will show this runs once
 	var cfg EnvConfig
 	envconfig.MustProcess("", &cfg) // MustProcess will panic on error, simplifying error handling here
@@ -90,12 +90,12 @@ func loadEnvInternal() {
 	log.Println("INFO: Environment configuration loaded successfully.")
 }
 
-// GetEnv returns the loaded environment configuration.
+// Env returns the loaded environment configuration.
 // It ensures that the configuration is loaded exactly once, in a thread-safe manner.
 // This function can now be the single point of access for your configuration.
-func GetEnv() *EnvConfig {
+func Env() *EnvConfig {
 	// loadConfigOnce.Do is a thread-safe one-time initalization
-	loadConfigOnce.Do(loadEnvInternal)
+	loadConfigOnce.Do(loadEnv)
 
 	if globalEnvConfig == nil {
 		// This should ideally not happen if loadEnvInternal panics on critical failure.

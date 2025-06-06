@@ -12,8 +12,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/jackc/pgx/stdlib"
 
 	"github.com/rs/zerolog/log"
@@ -22,14 +20,12 @@ import (
 	"github.com/kylep342/mendel/internal/db"
 	"github.com/kylep342/mendel/internal/handlers"
 	"github.com/kylep342/mendel/internal/models/plants"
-	"github.com/kylep342/mendel/pkg/responses"
 )
 
 // App is the singleton struct with components to run mendel
 type App struct {
-	DB       *sql.DB
-	Router   chi.Router
-	Routerer *gin.Engine
+	DB     *sql.DB
+	Router *gin.Engine
 }
 
 // Initialize creates the application's components.
@@ -71,25 +67,20 @@ func (a *App) Initialize(env *constants.EnvConfig) {
 
 	log.Info().Msg("Database connection successful.")
 
-	a.Router = chi.NewRouter()
-	a.Router.Use(middleware.Logger)
-	a.Router.Use(middleware.Recoverer)
-
-	a.Routerer = gin.Default()
-
-	a.InitializeRoutes(env) // Pass config to routes if needed
+	a.Router = gin.Default()
+	a.InitializeRoutes(env)
 }
 
 // InitializeRoutes creates all endpoints for the api
 func (a *App) InitializeRoutes(env *constants.EnvConfig) {
 	// ... (your existing route initialization logic is perfect)
 	// You can now pass the `env` to any handlers that might need it.
-	a.Router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		responses.RespondWithData(w, http.StatusOK, "ok")
+	a.Router.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"data": "ok"})
 	})
 
 	internalHandler := handlers.NewInternalHandler(a.DB, env)
-	internalHandler.RegisterRoutesGin(a.Routerer, constants.RouteIndex)
+	internalHandler.RegisterRoutes(a.Router, constants.RouteIndex)
 
 	plantSpeciesHandler := handlers.NewCRUDHandler(
 		a.DB,
@@ -99,8 +90,8 @@ func (a *App) InitializeRoutes(env *constants.EnvConfig) {
 			return &db.PlantSpeciesTable{DB: d}
 		},
 	)
+	// plantSpeciesHandler.RegisterRoutes(a.Router, constants.RoutePlantSpecies)
 	plantSpeciesHandler.RegisterRoutes(a.Router, constants.RoutePlantSpecies)
-	plantSpeciesHandler.RegisterRoutesGin(a.Routerer, constants.RoutePlantSpecies)
 
 	plantCultivarHandler := handlers.NewCRUDHandler(
 		a.DB,
@@ -110,8 +101,8 @@ func (a *App) InitializeRoutes(env *constants.EnvConfig) {
 			return &db.PlantCultivarTable{DB: d}
 		},
 	)
+	// plantCultivarHandler.RegisterRoutes(a.Router, constants.RoutePlantCultivar)
 	plantCultivarHandler.RegisterRoutes(a.Router, constants.RoutePlantCultivar)
-	plantCultivarHandler.RegisterRoutesGin(a.Routerer, constants.RoutePlantCultivar)
 
 	plantHandler := handlers.NewCRUDHandler(
 		a.DB,
@@ -121,13 +112,13 @@ func (a *App) InitializeRoutes(env *constants.EnvConfig) {
 			return &db.PlantTable{DB: d}
 		},
 	)
+	// plantHandler.RegisterRoutes(a.Router, constants.RoutePlant)
 	plantHandler.RegisterRoutes(a.Router, constants.RoutePlant)
-	plantHandler.RegisterRoutesGin(a.Routerer, constants.RoutePlant)
 }
 
 // Run starts the app and now includes graceful shutdown logic.
 // It uses the timeout values from your environment configuration.
 func (a *App) Run(env *constants.EnvConfig) {
 	// RunServer(a.Router, env.Server.Host, env.Server.Port, env)
-	RunServer(a.Routerer, env.Server.Host, env.Server.Port, env)
+	RunServer(a.Router, env.Server.Host, env.Server.Port, env)
 }
