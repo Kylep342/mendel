@@ -1,0 +1,1 @@
+DROP SCHEMA IF EXISTS mendel_core CASCADE;

@@ -3,11 +3,11 @@ services:
     image: postgres:16.6
     container_name: postgres
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s
-      retries: 5
-      start_period: 30s
-      timeout: 10s
+      test: ["CMD", "pg_isready", "-U", "admin", "-d", "mendel_core"]
+      interval: 60s
+      retries: 2
+      start_period: 10s
+      timeout: 5s
     restart: unless-stopped
     ports:
       - "5432:5432"
@@ -16,10 +16,25 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: mendel_core
     volumes:
-      - ./server/db/migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data
     networks:
       - mendel_network
+
+  db-migrate:
+    build:
+      context: ./server
+      dockerfile: ./Dockerfile
+      target: dev
+    entrypoint: ["go", "run", "./cmd/db-migrate/main.go" ]
+    env_file:
+      - ./server/.env.dev
+    networks:
+      - mendel_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - dev
 
   mendel-server:
     build:
@@ -30,9 +45,10 @@ services:
       - ./server/.env.dev
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 60s
+      interval: 15s
+      retries: 2
+      start_period: 10s
       timeout: 2s
-      retries: 3
     expose:
       - 8080
     ports:
@@ -42,7 +58,10 @@ services:
     networks:
       - mendel_network
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      db-migrate:
+        condition: service_completed_successfully
     profiles:
       - dev
 

@@ -5,7 +5,6 @@ package app
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"net/http"
 	"time"
@@ -31,18 +30,8 @@ type App struct {
 func (a *App) Initialize(env *constants.EnvConfig) {
 	var err error
 
-	sqlURL := fmt.Sprintf("%s://%s:%s@%s:%d/%s?sslmode=%s",
-		env.Database.Dialect,
-		env.Database.User,
-		env.Database.Password,
-		env.Database.Host,
-		env.Database.Port,
-		env.Database.Name,
-		env.Database.SSLMode,
-	)
-
 	// Postgres setup
-	a.DB, err = sql.Open("pgx", sqlURL)
+	a.DB, err = sql.Open("pgx", env.DBUrl())
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to open database connection")
 	}

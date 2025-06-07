@@ -1,6 +1,7 @@
 package constants
 
 import (
+	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -25,16 +26,17 @@ type EnvConfig struct {
 
 	// Database configuration fields
 	Database struct {
-		Dialect         string        `json:"dialect" envconfig:"DIALECT" default:"postgres"`               //  DB_DIALECT
-		Host            string        `json:"host" envconfig:"HOST" default:"localhost"`                    //  DB_HOST
-		Port            int           `json:"port" envconfig:"PORT" default:"5432"`                         //  DB_PORT
-		User            string        `json:"user" envconfig:"USER" default:"postgres"`                     //  DB_USER
-		Password        string        `json:"password" envconfig:"PASSWORD" required:"false"`               //  DB_PASSWORD (consider required:"true")
-		Name            string        `json:"name" envconfig:"NAME" default:"mendel_db"`                    //  DB_NAME
-		SSLMode         string        `json:"ssl_mode" envconfig:"SSLMODE" default:"disable"`               //  DB_SSLMODE
-		MaxOpenConns    int           `json:"max_openconns" envconfig:"MAX_OPEN_CONNS" default:"25"`        //  DB_MAX_OPEN_CONNS
-		MaxIdleConns    int           `json:"max_idle_conns" envconfig:"MAX_IDLE_CONNS" default:"25"`       //  DB_MAX_IDLE_CONNS
-		ConnMaxLifetime time.Duration `json:"conn_max_lifetime" envconfig:"CONN_MAX_LIFETIME" default:"5m"` //  DB_CONN_MAX_LIFETIME
+		Dialect          string        `json:"dialect" envconfig:"DIALECT" default:"postgres"`                                        //  DB_DIALECT
+		Host             string        `json:"host" envconfig:"HOST" default:"localhost"`                                             //  DB_HOST
+		Port             int           `json:"port" envconfig:"PORT" default:"5432"`                                                  //  DB_PORT
+		User             string        `json:"user" envconfig:"USER" default:"postgres"`                                              //  DB_USER
+		Password         string        `json:"password" envconfig:"PASSWORD" required:"true"`                                         //  DB_PASSWORD (consider required:"true")
+		Name             string        `json:"name" envconfig:"NAME" default:"mendel_db"`                                             //  DB_NAME
+		SSLMode          string        `json:"ssl_mode" envconfig:"SSLMODE" default:"disable"`                                        //  DB_SSLMODE
+		MaxOpenConns     int           `json:"max_openconns" envconfig:"MAX_OPEN_CONNS" default:"25"`                                 //  DB_MAX_OPEN_CONNS
+		MaxIdleConns     int           `json:"max_idle_conns" envconfig:"MAX_IDLE_CONNS" default:"25"`                                //  DB_MAX_IDLE_CONNS
+		ConnMaxLifetime  time.Duration `json:"conn_max_lifetime" envconfig:"CONN_MAX_LIFETIME" default:"5m"`                          //  DB_CONN_MAX_LIFETIME
+		MigrationsFolder string        `json:"migrations_folder" envconfig:"MIGRATIONS_FOLDER" default:"/app/internal/db/migrations"` // DB_MIGRATIONS_FOLDER
 	} `json:"database" envconfig:"DB"` // prefix members with "DB_"
 
 	// Application specific configuration
@@ -44,6 +46,18 @@ type EnvConfig struct {
 		LogLevel            string `json:"log_level" envconfig:"LOG_LEVEL" default:"info"`                          //  APP_LOG_LEVEL
 		EnableDebugFeatures bool   `json:"enable_debug_features" envconfig:"ENABLE_DEBUG_FEATURES" default:"false"` //  APP_ENABLE_DEBUG_FEATURES
 	} `json:"app" envconfig:"APP"` // prefix members with "APP_"
+}
+
+func (e *EnvConfig) DBUrl() string {
+	return fmt.Sprintf("%s://%s:%s@%s:%d/%s?sslmode=%s",
+		e.Database.Dialect,
+		e.Database.User,
+		e.Database.Password,
+		e.Database.Host,
+		e.Database.Port,
+		e.Database.Name,
+		e.Database.SSLMode,
+	)
 }
 
 // globalEnvConfig holds the loaded environment configuration (singleton).
@@ -73,7 +87,7 @@ func isValidValue(value string, allowedValues []string, caseSensitive bool) bool
 func loadEnv() {
 	log.Info().Msg("Initializing and loading environment configuration...")
 	var cfg EnvConfig
-	envconfig.MustProcess("", &cfg) // MustProcess will panic on error, simplifying error handling here
+	envconfig.MustProcess("", &cfg)
 
 	// Validate environment
 	if !isValidValue(cfg.App.Environment, allowedEnvironments, true) {
@@ -82,7 +96,7 @@ func loadEnv() {
 	}
 
 	if cfg.App.Environment == EnvProduction && cfg.Database.Password == "" {
-		log.Printf("WARN: DB_PASSWORD environment variable is not set in production. This might be a security risk or cause connection failure.")
+		log.Warn().Msg("DB_PASSWORD environment variable is not set in production. This might be a security risk or cause connection failure.")
 	}
 
 	globalEnvConfig = &cfg
@@ -91,13 +105,10 @@ func loadEnv() {
 
 // Env returns the loaded environment configuration.
 // It ensures that the configuration is loaded exactly once, in a thread-safe manner.
-// This function can now be the single point of access for your configuration.
 func Env() *EnvConfig {
-	// loadConfigOnce.Do is a thread-safe one-time initalization
 	loadConfigOnce.Do(loadEnv)
 
 	if globalEnvConfig == nil {
-		// This should ideally not happen if loadEnvInternal panics on critical failure.
 		log.Fatal().Msg("FATAL: Environment configuration is nil after attempting to load.")
 	}
 	return globalEnvConfig

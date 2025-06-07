@@ -35,6 +35,7 @@ RUN go mod download
 COPY . .
 
 RUN CGO_ENABLED=0 go build -o mendel-server ./cmd/mendel-server/
+RUN CGO_ENABLED=0 go build -o db-migratre ./cmd/db-migrate/
 
 FROM alpine:latest
 
@@ -42,6 +43,7 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 WORKDIR /app
 
 COPY --from=builder /app/mendel-server .
+COPY --from=builder /app/db-migrate .
 
 USER appuser
 EXPOSE 8080
