@@ -25,8 +25,13 @@ func main() {
 	}
 
 	err = m.Up()
-	if err != nil {
+	if err == migrate.ErrNoChange {
+		version, _, _ := m.Version()
+		log.Info().Uint("migration", version).Msg("No migration necessary")
+		return
+	} else if err != nil {
 		log.Fatal().Err(err).Msg("Failed to migrate database")
 	}
+
 	log.Info().Str("database", env.Database.Name).Msg("Database migrated")
 }
