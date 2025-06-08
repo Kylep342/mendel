@@ -85,7 +85,7 @@ func isValidValue(value string, allowedValues []string, caseSensitive bool) bool
 
 // loadEnv contains the logic to load and validate environment configuration.
 func loadEnv() {
-	log.Info().Msg("Initializing and loading environment configuration...")
+	log.Info().Msg("Initializing and loading environment configuration")
 	var cfg EnvConfig
 	envconfig.MustProcess("", &cfg)
 
@@ -96,11 +96,11 @@ func loadEnv() {
 	}
 
 	if cfg.App.Environment == EnvProduction && cfg.Database.Password == "" {
-		log.Warn().Msg("DB_PASSWORD environment variable is not set in production. This might be a security risk or cause connection failure.")
+		log.Warn().Msg("DB_PASSWORD environment variable is not set in production. This might be a security risk or cause connection failure")
 	}
 
 	globalEnvConfig = &cfg
-	log.Info().Msg("Environment configuration loaded successfully.")
+	log.Info().Msg("Environment configuration loaded successfully")
 }
 
 // Env returns the loaded environment configuration.
@@ -109,7 +109,7 @@ func Env() *EnvConfig {
 	loadConfigOnce.Do(loadEnv)
 
 	if globalEnvConfig == nil {
-		log.Fatal().Msg("FATAL: Environment configuration is nil after attempting to load.")
+		log.Fatal().Msg("Environment configuration is nil after attempting to load")
 	}
 	return globalEnvConfig
 }

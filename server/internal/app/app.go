@@ -7,7 +7,6 @@ import (
 	"database/sql"
 
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/stdlib"
@@ -42,8 +41,9 @@ func (a *App) Initialize(env *constants.EnvConfig) {
 
 	// Ping the database to verify the connection.
 	// Use a startup context for this operation.
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), env.Server.ReadTimeout)
 	defer cancel()
+
 	if err = a.DB.PingContext(ctx); err != nil {
 		log.Fatal().Err(err).Msg("Failed to connect to database")
 	}
@@ -61,6 +61,8 @@ func (a *App) Initialize(env *constants.EnvConfig) {
 
 // InitializeRoutes creates all endpoints for the api
 func (a *App) InitializeRoutes(env *constants.EnvConfig) {
+	log.Info().Msg("Initializing routes")
+
 	a.Router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"data": "ok"})
 	})
@@ -97,10 +99,10 @@ func (a *App) InitializeRoutes(env *constants.EnvConfig) {
 		},
 	)
 	plantHandler.RegisterRoutes(a.Router, constants.RoutePlant)
+	log.Info().Msg("Routes initialized")
 }
 
-// Run starts the app and now includes graceful shutdown logic.
-// It uses the timeout values from your environment configuration.
+// Run starts the app and performs a graceful shutdown.
 func (a *App) Run(env *constants.EnvConfig) {
 	RunServer(a.Router, env)
 }
