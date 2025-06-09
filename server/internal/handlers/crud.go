@@ -11,6 +11,7 @@ import (
 	"github.com/kylep342/mendel/internal/constants"
 	"github.com/kylep342/mendel/internal/db"
 	"github.com/kylep342/mendel/internal/models"
+	"github.com/kylep342/mendel/pkg/responses"
 )
 
 type CRUDHandler[T interface{}, PT interface {
@@ -50,10 +51,10 @@ func (h *CRUDHandler[T, PT]) GetAll(c *gin.Context) {
 
 	items, err := h.Table.GetAll(ctx)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, err)
+		responses.RespondError(c, err, http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": items})
+	responses.RespondData(c, items)
 }
 
 func (h *CRUDHandler[T, PT]) Create(c *gin.Context) {
@@ -63,14 +64,14 @@ func (h *CRUDHandler[T, PT]) Create(c *gin.Context) {
 
 	item := h.New()
 	if err := json.NewDecoder(c.Request.Body).Decode(item); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, err)
+		responses.RespondError(c, err, http.StatusBadRequest)
 		return
 	}
 	if err := h.Table.Create(ctx, item); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, err)
+		responses.RespondError(c, err, http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": item})
+	responses.RespondData(c, item)
 }
 
 func (h *CRUDHandler[T, PT]) GetByID(c *gin.Context) {
@@ -82,13 +83,13 @@ func (h *CRUDHandler[T, PT]) GetByID(c *gin.Context) {
 	item, err := h.Table.GetByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "not found"})
+			responses.RespondError(c, "not found", http.StatusNotFound)
 		} else {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+			responses.RespondError(c, err, http.StatusInternalServerError)
 		}
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": item})
+	responses.RespondData(c, item)
 }
 
 // TODO: This method is not passing JSON params from HTTP put methods and populating the model (e.g. "name", "taxon")
@@ -102,15 +103,15 @@ func (h *CRUDHandler[T, PT]) Update(c *gin.Context) {
 	if model, ok := any(item).(models.Model); ok {
 		model.SetID(id)
 	} else {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": ok})
+		responses.RespondError(c, ok, http.StatusInternalServerError)
 		return
 	}
 
 	if err := h.Table.Update(ctx, item); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+		responses.RespondError(c, err, http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": item})
+	responses.RespondData(c, item)
 }
 
 func (h *CRUDHandler[T, PT]) Delete(c *gin.Context) {
@@ -120,8 +121,8 @@ func (h *CRUDHandler[T, PT]) Delete(c *gin.Context) {
 
 	id := c.Param("id")
 	if err := h.Table.Delete(ctx, id); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+		responses.RespondError(c, err, http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": id})
+	responses.RespondData(c, id)
 }

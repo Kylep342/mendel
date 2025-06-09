@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kylep342/mendel/internal/constants"
+	"github.com/kylep342/mendel/pkg/responses"
 )
 
 type InternalHandler struct {
@@ -47,11 +48,11 @@ func (h *InternalHandler) Healthcheck(c *gin.Context) {
 	// Respond
 	for key := range componentStats {
 		if !componentStats[key] {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, componentStats)
+			responses.RespondError(c, componentStats, http.StatusInternalServerError)
 		}
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": componentStats})
+	responses.RespondData(c, componentStats)
 }
 
 // EnvConfig responds to a request to expose the internal server config
@@ -60,8 +61,8 @@ func (h *InternalHandler) Healthcheck(c *gin.Context) {
 // Returns 404 in production
 func (h *InternalHandler) EnvCheck(c *gin.Context) {
 	if h.envConfig.App.Environment == constants.EnvProduction {
-		c.AbortWithStatusJSON(http.StatusNotFound, "not found")
+		responses.RespondError(c, "not found", http.StatusNotFound)
 	} else {
-		c.JSON(http.StatusOK, gin.H{"data": h.envConfig})
+		responses.RespondData(c, h.envConfig)
 	}
 }

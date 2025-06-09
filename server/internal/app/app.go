@@ -6,8 +6,6 @@ import (
 	"context"
 	"database/sql"
 
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/stdlib"
 
@@ -17,12 +15,18 @@ import (
 	"github.com/kylep342/mendel/internal/db"
 	"github.com/kylep342/mendel/internal/handlers"
 	"github.com/kylep342/mendel/internal/models/plants"
+	"github.com/kylep342/mendel/pkg/responses"
 )
 
 // App is the singleton struct with components to run mendel
 type App struct {
 	DB     *sql.DB
 	Router *gin.Engine
+}
+
+// Run starts the app and performs a graceful shutdown.
+func (a *App) Run(env *constants.EnvConfig) {
+	RunServer(a.Router, env)
 }
 
 // Initialize creates the application's components.
@@ -39,8 +43,6 @@ func (a *App) Initialize(env *constants.EnvConfig) {
 	a.DB.SetMaxIdleConns(env.Database.MaxIdleConns)
 	a.DB.SetConnMaxLifetime(env.Database.ConnMaxLifetime)
 
-	// Ping the database to verify the connection.
-	// Use a startup context for this operation.
 	ctx, cancel := context.WithTimeout(context.Background(), env.Server.ReadTimeout)
 	defer cancel()
 
@@ -53,8 +55,9 @@ func (a *App) Initialize(env *constants.EnvConfig) {
 		log.Fatal().Err(err).Msg("failed to set search_path")
 	}
 
-	log.Info().Msg("Database connection successful.")
+	log.Info().Msg("Database connection successful")
 
+	// Router setup
 	a.Router = gin.Default()
 	a.InitializeRoutes(env)
 }
@@ -64,7 +67,7 @@ func (a *App) InitializeRoutes(env *constants.EnvConfig) {
 	log.Info().Msg("Initializing routes")
 
 	a.Router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"data": "ok"})
+		responses.RespondData(c, "ok")
 	})
 
 	internalHandler := handlers.NewInternalHandler(a.DB, env)
@@ -100,9 +103,4 @@ func (a *App) InitializeRoutes(env *constants.EnvConfig) {
 	)
 	plantHandler.RegisterRoutes(a.Router, constants.RoutePlant)
 	log.Info().Msg("Routes initialized")
-}
-
-// Run starts the app and performs a graceful shutdown.
-func (a *App) Run(env *constants.EnvConfig) {
-	RunServer(a.Router, env)
 }
