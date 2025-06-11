@@ -4,7 +4,6 @@ go 1.23.5
 
 require (
 	github.com/gin-gonic/gin v1.10.1
-	github.com/go-chi/chi/v5 v5.2.1
 	github.com/jackc/pgx v3.6.2+incompatible
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/rs/zerolog v1.34.0
@@ -23,7 +22,7 @@ require (
 	github.com/go-playground/validator/v10 v10.20.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
-	github.com/golang-migrate/migrate/v4 v4.18.3 // indirect
+	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect

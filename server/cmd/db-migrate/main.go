@@ -1,27 +1,16 @@
 package main
 
 import (
-	"os"
-
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/google/uuid"
-	"github.com/rs/zerolog"
 
 	"github.com/kylep342/mendel/internal/constants"
+	"github.com/kylep342/mendel/pkg/logger"
 )
 
 func main() {
-	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
-
-	logger := zerolog.New(os.Stderr).
-		With().
-		Timestamp().
-		Str("deployment", constants.AppDbMigrate).
-		Str("deployment_id", uuid.NewString()).
-		Logger()
-
+	logger := logger.NewLogger(constants.AppDbMigrate)
 	env := constants.Env(logger)
 
 	logger.Info().Str("database", env.Database.Name).Msg("Migrating database")
