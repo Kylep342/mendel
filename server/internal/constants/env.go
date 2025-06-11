@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/kelseyhightower/envconfig"
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
 )
 
 // EnvConfig is a singleton struct containing runtime constants
@@ -84,32 +84,32 @@ func isValidValue(value string, allowedValues []string, caseSensitive bool) bool
 }
 
 // loadEnv contains the logic to load and validate environment configuration.
-func loadEnv() {
-	log.Info().Msg("Initializing and loading environment configuration")
+func loadEnv(logger zerolog.Logger) {
+	logger.Info().Msg("Initializing and loading environment configuration")
 	var cfg EnvConfig
 	envconfig.MustProcess("", &cfg)
 
 	// Validate environment
 	if !isValidValue(cfg.App.Environment, allowedEnvironments, true) {
-		log.Fatal().Msgf("Invalid APP_ENV value '%s'. Allowed values are: %v",
+		logger.Fatal().Msgf("Invalid APP_ENV value '%s'. Allowed values are: %v",
 			cfg.App.Environment, allowedEnvironments)
 	}
 
 	if cfg.App.Environment == EnvProduction && cfg.Database.Password == "" {
-		log.Warn().Msg("DB_PASSWORD environment variable is not set in production. This might be a security risk or cause connection failure")
+		logger.Warn().Msg("DB_PASSWORD environment variable is not set in production. This might be a security risk or cause connection failure")
 	}
 
 	globalEnvConfig = &cfg
-	log.Info().Msg("Environment configuration loaded successfully")
+	logger.Info().Msg("Environment configuration loaded successfully")
 }
 
 // Env returns the loaded environment configuration.
 // It ensures that the configuration is loaded exactly once, in a thread-safe manner.
-func Env() *EnvConfig {
-	loadConfigOnce.Do(loadEnv)
+func Env(logger zerolog.Logger) *EnvConfig {
+	loadConfigOnce.Do(func() { loadEnv(logger) })
 
 	if globalEnvConfig == nil {
-		log.Fatal().Msg("Environment configuration is nil after attempting to load")
+		logger.Fatal().Msg("Environment configuration is nil after attempting to load")
 	}
 	return globalEnvConfig
 }

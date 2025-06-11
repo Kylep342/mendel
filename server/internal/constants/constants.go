@@ -1,6 +1,10 @@
 package constants
 
 const (
+	// Apps
+	AppDbMigrate    = "db-migrate"
+	AppMendelServer = "mendel-server"
+
 	// Environment/App class constants
 	EnvDevelopment = "development"
 	EnvStaging     = "staging"

@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/stdlib"
 
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
 
 	"github.com/kylep342/mendel/internal/constants"
 	"github.com/kylep342/mendel/internal/db"
@@ -21,6 +21,7 @@ import (
 // App is the singleton struct with components to run mendel
 type App struct {
 	DB     *sql.DB
+	Logger zerolog.Logger
 	Router *gin.Engine
 }
 
@@ -30,13 +31,15 @@ func (a *App) Run(env *constants.EnvConfig) {
 }
 
 // Initialize creates the application's components.
-func (a *App) Initialize(env *constants.EnvConfig) {
+func (a *App) Initialize(logger zerolog.Logger, env *constants.EnvConfig) {
 	var err error
+
+	a.Logger = logger
 
 	// Postgres setup
 	a.DB, err = sql.Open("pgx", env.DBUrl())
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to open database connection")
+		a.Logger.Fatal().Err(err).Msg("Failed to open database connection")
 	}
 
 	a.DB.SetMaxOpenConns(env.Database.MaxOpenConns)
@@ -47,15 +50,15 @@ func (a *App) Initialize(env *constants.EnvConfig) {
 	defer cancel()
 
 	if err = a.DB.PingContext(ctx); err != nil {
-		log.Fatal().Err(err).Msg("Failed to connect to database")
+		a.Logger.Fatal().Err(err).Msg("Failed to connect to database")
 	}
 
 	_, err = a.DB.Exec(constants.DBInitQuery)
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to set search_path")
+		a.Logger.Fatal().Err(err).Msg("failed to set search_path")
 	}
 
-	log.Info().Msg("Database connection successful")
+	a.Logger.Info().Msg("Database connection successful")
 
 	// Router setup
 	a.Router = gin.Default()
@@ -64,7 +67,7 @@ func (a *App) Initialize(env *constants.EnvConfig) {
 
 // InitializeRoutes creates all endpoints for the api
 func (a *App) InitializeRoutes(env *constants.EnvConfig) {
-	log.Info().Msg("Initializing routes")
+	a.Logger.Info().Msg("Initializing routes")
 
 	a.Router.GET("/", func(c *gin.Context) {
 		responses.RespondData(c, "ok")
@@ -102,5 +105,5 @@ func (a *App) InitializeRoutes(env *constants.EnvConfig) {
 		},
 	)
 	plantHandler.RegisterRoutes(a.Router, constants.RoutePlant)
-	log.Info().Msg("Routes initialized")
+	a.Logger.Info().Msg("Routes initialized")
 }

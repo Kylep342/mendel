@@ -2,8 +2,10 @@
 package main
 
 import (
+	"os"
+
+	"github.com/google/uuid"
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 
 	"github.com/kylep342/mendel/internal/app"
 	"github.com/kylep342/mendel/internal/constants"
@@ -11,12 +13,20 @@ import (
 
 func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
-	env := constants.Env()
 
-	log.Info().Msg("Initializing app")
+	logger := zerolog.New(os.Stderr).
+		With().
+		Timestamp().
+		Str("deployment", constants.AppMendelServer).
+		Str("deployment_id", uuid.NewString()).
+		Logger()
+
+	env := constants.Env(logger)
+
+	logger.Info().Msg("Initializing app")
 	a := app.App{}
-	a.Initialize(env)
+	a.Initialize(logger, env)
 
-	log.Info().Msg("App initialized. Running")
+	logger.Info().Msg("App initialized. Running")
 	a.Run(env)
 }
