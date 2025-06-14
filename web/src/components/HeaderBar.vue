@@ -25,7 +25,7 @@ const handleMenuItemClick = (action: () => void, event: Event) => {
 </script>
 
 <template>
-  <header class="main-header">
+  <header>
     <div class="logo-container">
       <h1>Mendel</h1>
     </div>
@@ -47,7 +47,7 @@ const handleMenuItemClick = (action: () => void, event: Event) => {
 
 <style scoped>
 /* Scoped styles ensure these only apply to HeaderBar.vue */
-.main-header {
+header {
   /* Core layout with Flexbox */
   display: flex;
   justify-content: space-between; /* This pushes Mendel and Menu to opposite ends */
