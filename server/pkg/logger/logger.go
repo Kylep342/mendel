@@ -15,6 +15,6 @@ func NewLogger(deployment string) zerolog.Logger {
 		Str("deployment", deployment).
 		Str("deployment_id", uuid.NewString()).
 		Logger()
-	logger.Info().Msgf("Initializing app: %s", deployment)
+	logger.Info().Msg("Initializing logger")
 	return logger
 }

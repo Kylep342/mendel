@@ -66,6 +66,17 @@ var (
 	loadConfigOnce  sync.Once
 
 	allowedEnvironments = []string{EnvDevelopment, EnvStaging, EnvProduction}
+	// allowedLogLevels    = []zerolog.Level{
+	// 	zerolog.DebugLevel,
+	// 	zerolog.InfoLevel,
+	// 	zerolog.WarnLevel,
+	// 	zerolog.ErrorLevel,
+	// 	zerolog.FatalLevel,
+	// 	zerolog.PanicLevel,
+	// 	zerolog.NoLevel,
+	// 	zerolog.Disabled,
+	// 	zerolog.TraceLevel,
+	// }
 )
 
 func isValidValue(value string, allowedValues []string, caseSensitive bool) bool {

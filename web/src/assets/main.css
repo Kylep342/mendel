@@ -1,20 +1,22 @@
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
 :root {
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --primary-color: oklch(0.6794 0.1801 146.12);
   --secondary-color: oklch(0.8176 0 98);
   --text-on-primary: black;
   --text-on-secondary: black;
-  --background-color: oklch(0.95 0 0); /* A light gray background */
+  --background-color: oklch(0.95 0 0);
 }
 
 body {
   font-family: var(--font-mono);
   background-color: var(--background-color);
   color: var(--text-on-secondary);
+  margin: 0;
 }
-
-/* header {
-  background-color: oklch(0.6794 0.1801 146.12);
-} */
-
-/* oklch(0.8176 0 98) */
