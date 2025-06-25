@@ -14,7 +14,7 @@ import (
 // it holds all environment-specific configurations for the application.
 // Struct tags define how environment variables are mapped to fields.
 type EnvConfig struct {
-	// Server configuration fields
+	// Server configuration fields - prefix members with "SERVER_"
 	Server struct {
 		Host            string        `json:"host" envconfig:"HOST" default:"localhost"`                   //  SERVER_HOST
 		Port            string        `json:"port" envconfig:"PORT" default:"8080"`                        //  SERVER_PORT
@@ -22,9 +22,9 @@ type EnvConfig struct {
 		WriteTimeout    time.Duration `json:"write_timeout" envconfig:"WRITE_TIMEOUT" default:"15s"`       //  SERVER_WRITE_TIMEOUT
 		IdleTimeout     time.Duration `json:"idle_timeout" envconfig:"IDLE_TIMEOUT" default:"60s"`         //  SERVER_IDLE_TIMEOUT
 		ShutdownTimeout time.Duration `json:"shutdown_timeout" envconfig:"SHUTDOWN_TIMEOUT" default:"10s"` //  SERVER_SHUTDOWN_TIMEOUT
-	} `json:"server" envconfig:"SERVER"` // prefix members with "SERVER_"
+	} `json:"server" envconfig:"SERVER"`
 
-	// Database configuration fields
+	// Database configuration fields - prefix members with "DB_"
 	Database struct {
 		Dialect          string        `json:"dialect" envconfig:"DIALECT" default:"postgres"`                                        //  DB_DIALECT
 		Host             string        `json:"host" envconfig:"HOST" default:"localhost"`                                             //  DB_HOST
@@ -36,16 +36,16 @@ type EnvConfig struct {
 		MaxOpenConns     int           `json:"max_openconns" envconfig:"MAX_OPEN_CONNS" default:"25"`                                 //  DB_MAX_OPEN_CONNS
 		MaxIdleConns     int           `json:"max_idle_conns" envconfig:"MAX_IDLE_CONNS" default:"25"`                                //  DB_MAX_IDLE_CONNS
 		ConnMaxLifetime  time.Duration `json:"conn_max_lifetime" envconfig:"CONN_MAX_LIFETIME" default:"5m"`                          //  DB_CONN_MAX_LIFETIME
-		MigrationsFolder string        `json:"migrations_folder" envconfig:"MIGRATIONS_FOLDER" default:"/app/internal/db/migrations"` // DB_MIGRATIONS_FOLDER
-	} `json:"database" envconfig:"DB"` // prefix members with "DB_"
+		MigrationsFolder string        `json:"migrations_folder" envconfig:"MIGRATIONS_FOLDER" default:"/app/internal/db/migrations"` //  DB_MIGRATIONS_FOLDER
+	} `json:"database" envconfig:"DB"`
 
-	// Application specific configuration
+	// Application specific configuration - prefix members with "APP_"
 	App struct {
 		Name                string `json:"name" envconfig:"NAME" default:"MendelApp"`                               //  APP_NAME
 		Environment         string `json:"environment" envconfig:"ENV" default:"development" required:"true"`       //  APP_ENV
 		LogLevel            string `json:"log_level" envconfig:"LOG_LEVEL" default:"info"`                          //  APP_LOG_LEVEL
 		EnableDebugFeatures bool   `json:"enable_debug_features" envconfig:"ENABLE_DEBUG_FEATURES" default:"false"` //  APP_ENABLE_DEBUG_FEATURES
-	} `json:"app" envconfig:"APP"` // prefix members with "APP_"
+	} `json:"app" envconfig:"APP"`
 }
 
 func (e *EnvConfig) DBUrl() string {

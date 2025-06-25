@@ -1,5 +1,6 @@
-
-
+/*
+App-level types (non business-logic specific)
+*/
 export type Button = {
   text: string
   onClick: Function
