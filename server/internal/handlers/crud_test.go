@@ -41,7 +41,6 @@ func newTestModel() *testModel {
 }
 
 // MockCRUDTable is a mock implementation of the db.CRUDTable interface using testify/mock.
-// This allows us to simulate database behavior without a real database connection.
 type MockCRUDTable[T any] struct {
 	mock.Mock
 }
@@ -90,11 +89,7 @@ func setupTest[T interface{}, PT interface {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 
-	// =========================================================================
-	// !! FIX !!
-	// Initialize c.Request with a default request to prevent nil pointer
-	// dereference when handlers call c.Request.Context().
-	// =========================================================================
+	// Provides c with Context necessary for tested HTTP methods
 	c.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
 
 	mockEnv := &constants.EnvConfig{}
