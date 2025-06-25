@@ -49,10 +49,13 @@ func NewCRUDHandler[T any, PT interface {
 func (h *CRUDHandler[T, PT]) RegisterRoutes(g *gin.Engine, basePath string) {
 	rg := g.Group(basePath)
 	rg.GET("/", h.GetAll)
-	rg.PUT("/")
+	rg.GET("/:id", h.GetByID)
+	rg.POST("/", h.Create)
+	rg.PUT("/:id", h.Update)
+	rg.DELETE("/:id", h.Delete)
 }
 
-// GetAll responds to a request with all records from CRUDTable
+// GetAll responds to a request with all records from CRUDTable[T]
 func (h *CRUDHandler[T, PT]) GetAll(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), h.Env.Server.ReadTimeout)
 	defer cancel()
@@ -65,7 +68,7 @@ func (h *CRUDHandler[T, PT]) GetAll(c *gin.Context) {
 	responses.RespondData(c, items)
 }
 
-// Create responds to a request to add a record to CRUDTable
+// Create responds to a request to add a record to CRUDTable[T]
 func (h *CRUDHandler[T, PT]) Create(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), h.Env.Server.WriteTimeout)
 	defer cancel()
@@ -82,7 +85,7 @@ func (h *CRUDHandler[T, PT]) Create(c *gin.Context) {
 	responses.RespondData(c, item)
 }
 
-// GetByID responds to a request with the requested record from CRUDTable
+// GetByID responds to a request with the requested record from CRUDTable[T]
 func (h *CRUDHandler[T, PT]) GetByID(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), h.Env.Server.ReadTimeout)
 	defer cancel()
@@ -101,7 +104,7 @@ func (h *CRUDHandler[T, PT]) GetByID(c *gin.Context) {
 }
 
 // TODO: This method is not passing JSON params from HTTP put methods and populating the model (e.g. "name", "taxon")
-// Update responds to a request to change the requested record in CRUDTable
+// Update responds to a request to change the requested record in CRUDTable[T]
 func (h *CRUDHandler[T, PT]) Update(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), h.Env.Server.WriteTimeout)
 	defer cancel()
@@ -122,7 +125,7 @@ func (h *CRUDHandler[T, PT]) Update(c *gin.Context) {
 	responses.RespondData(c, item)
 }
 
-// Delete responds to a request to remove the requested record from CRUDTable
+// Delete responds to a request to remove the requested record from CRUDTable[T]
 func (h *CRUDHandler[T, PT]) Delete(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), h.Env.Server.WriteTimeout)
 	defer cancel()

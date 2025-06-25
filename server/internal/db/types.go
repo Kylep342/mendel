@@ -2,7 +2,7 @@ package db
 
 import "context"
 
-// CRUDTable is an interface for go_model-to-db_record mapping as T
+// CRUDTable is an interface for go_model-to-db_record mapping for a table as T
 //
 //	T - a table schema in GO as a struct
 type CRUDTable[T any] interface {
