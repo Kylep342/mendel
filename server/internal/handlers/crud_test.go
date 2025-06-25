@@ -45,6 +45,15 @@ type MockCRUDTable[T any] struct {
 	mock.Mock
 }
 
+/*
+
+Mock methods below
+
+these mock the HTTP methods
+also asserts inner calls to CRUD on [T] have proper args
+
+*/
+
 func (m *MockCRUDTable[T]) GetAll(ctx context.Context) ([]T, error) {
 	args := m.Called(ctx)
 	if args.Get(0) == nil {
