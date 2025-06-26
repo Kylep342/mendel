@@ -65,7 +65,7 @@ func (h *CRUDHandler[T, PT]) GetAll(c *gin.Context) {
 		responses.RespondError(c, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	responses.RespondData(c, items)
+	responses.RespondData(c, items, http.StatusOK)
 }
 
 // Create responds to a request to add a record to CRUDTable[T]
@@ -82,7 +82,7 @@ func (h *CRUDHandler[T, PT]) Create(c *gin.Context) {
 		responses.RespondError(c, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	responses.RespondData(c, item)
+	responses.RespondData(c, item, http.StatusOK)
 }
 
 // GetByID responds to a request with the requested record from CRUDTable[T]
@@ -100,7 +100,7 @@ func (h *CRUDHandler[T, PT]) GetByID(c *gin.Context) {
 		}
 		return
 	}
-	responses.RespondData(c, item)
+	responses.RespondData(c, item, http.StatusOK)
 }
 
 // TODO: This method is not passing JSON params from HTTP put methods and populating the model (e.g. "name", "taxon")
@@ -122,7 +122,7 @@ func (h *CRUDHandler[T, PT]) Update(c *gin.Context) {
 		responses.RespondError(c, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	responses.RespondData(c, item)
+	responses.RespondData(c, item, http.StatusOK)
 }
 
 // Delete responds to a request to remove the requested record from CRUDTable[T]
@@ -135,5 +135,5 @@ func (h *CRUDHandler[T, PT]) Delete(c *gin.Context) {
 		responses.RespondError(c, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	responses.RespondData(c, id)
+	responses.RespondData(c, id, http.StatusOK)
 }

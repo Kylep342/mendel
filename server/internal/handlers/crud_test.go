@@ -169,7 +169,6 @@ func TestCRUDHandler_Create(t *testing.T) {
 
 		newItem := testModel{Name: "New Plant"}
 		newItemJSON, _ := json.Marshal(newItem)
-		// This line will overwrite the default request set in setupTest, which is expected.
 		c.Request, _ = http.NewRequest(http.MethodPost, "/items", strings.NewReader(string(newItemJSON)))
 
 		mockTable.On("Create", mock.Anything, &newItem).Return(nil).Once()
