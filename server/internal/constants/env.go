@@ -6,46 +6,46 @@ import (
 	"sync"
 	"time"
 
-	"github.com/kelseyhightower/envconfig"
 	"github.com/rs/zerolog"
+	"github.com/spf13/viper"
 )
 
-// EnvConfig is a singleton struct containing runtime constants
-// it holds all environment-specific configurations for the application.
-// Struct tags define how environment variables are mapped to fields.
+// EnvConfig is a singleton struct containing runtime constants.
+// It holds all environment-specific configurations for the application.
+// The `mapstructure` tags are used by Viper to unmarshal config data into this struct.
 type EnvConfig struct {
-	// Server configuration fields - prefix members with "SERVER_"
+	// Server configuration fields
 	Server struct {
-		Host            string        `json:"host" envconfig:"HOST" default:"localhost"`                   //  SERVER_HOST
-		Port            string        `json:"port" envconfig:"PORT" default:"8080"`                        //  SERVER_PORT
-		ReadTimeout     time.Duration `json:"read_timeout" envconfig:"READ_TIMEOUT" default:"15s"`         //  SERVER_READ_TIMEOUT
-		WriteTimeout    time.Duration `json:"write_timeout" envconfig:"WRITE_TIMEOUT" default:"15s"`       //  SERVER_WRITE_TIMEOUT
-		IdleTimeout     time.Duration `json:"idle_timeout" envconfig:"IDLE_TIMEOUT" default:"60s"`         //  SERVER_IDLE_TIMEOUT
-		ShutdownTimeout time.Duration `json:"shutdown_timeout" envconfig:"SHUTDOWN_TIMEOUT" default:"10s"` //  SERVER_SHUTDOWN_TIMEOUT
-	} `json:"server" envconfig:"SERVER"`
+		Host            string        `json:"host" mapstructure:"host"`
+		Port            string        `json:"port" mapstructure:"port"`
+		ReadTimeout     time.Duration `json:"read_timeout" mapstructure:"readtimeout"`
+		WriteTimeout    time.Duration `json:"write_timeout" mapstructure:"writetimeout"`
+		IdleTimeout     time.Duration `json:"idle_timeout" mapstructure:"idletimeout"`
+		ShutdownTimeout time.Duration `json:"shutdown_timeout" mapstructure:"shutdowntimeout"`
+	} `json:"server" mapstructure:"server"`
 
-	// Database configuration fields - prefix members with "DB_"
+	// Database configuration fields
 	Database struct {
-		Dialect          string        `json:"dialect" envconfig:"DIALECT" default:"postgres"`                                        //  DB_DIALECT
-		Host             string        `json:"host" envconfig:"HOST" default:"localhost"`                                             //  DB_HOST
-		Port             int           `json:"port" envconfig:"PORT" default:"5432"`                                                  //  DB_PORT
-		User             string        `json:"user" envconfig:"USER" default:"postgres"`                                              //  DB_USER
-		Password         string        `json:"password" envconfig:"PASSWORD" required:"true"`                                         //  DB_PASSWORD (consider required:"true")
-		Name             string        `json:"name" envconfig:"NAME" default:"mendel_db"`                                             //  DB_NAME
-		SSLMode          string        `json:"ssl_mode" envconfig:"SSLMODE" default:"disable"`                                        //  DB_SSLMODE
-		MaxOpenConns     int           `json:"max_openconns" envconfig:"MAX_OPEN_CONNS" default:"25"`                                 //  DB_MAX_OPEN_CONNS
-		MaxIdleConns     int           `json:"max_idle_conns" envconfig:"MAX_IDLE_CONNS" default:"25"`                                //  DB_MAX_IDLE_CONNS
-		ConnMaxLifetime  time.Duration `json:"conn_max_lifetime" envconfig:"CONN_MAX_LIFETIME" default:"5m"`                          //  DB_CONN_MAX_LIFETIME
-		MigrationsFolder string        `json:"migrations_folder" envconfig:"MIGRATIONS_FOLDER" default:"/app/internal/db/migrations"` //  DB_MIGRATIONS_FOLDER
-	} `json:"database" envconfig:"DB"`
+		Dialect          string        `json:"dialect" mapstructure:"dialect"`
+		Host             string        `json:"host" mapstructure:"host"`
+		Port             int           `json:"port" mapstructure:"port"`
+		User             string        `json:"user" mapstructure:"user"`
+		Password         string        `json:"password" mapstructure:"password"`
+		Name             string        `json:"name" mapstructure:"name"`
+		SSLMode          string        `json:"ssl_mode" mapstructure:"sslmode"`
+		MaxOpenConns     int           `json:"max_openconns" mapstructure:"maxopenconns"`
+		MaxIdleConns     int           `json:"max_idle_conns" mapstructure:"maxidleconns"`
+		ConnMaxLifetime  time.Duration `json:"conn_max_lifetime" mapstructure:"connmaxlifetime"`
+		MigrationsFolder string        `json:"migrations_folder" mapstructure:"migrationsfolder"`
+	} `json:"database" mapstructure:"database"`
 
-	// Application specific configuration - prefix members with "APP_"
+	// Application specific configuration
 	App struct {
-		Name                string `json:"name" envconfig:"NAME" default:"MendelApp"`                               //  APP_NAME
-		Environment         string `json:"environment" envconfig:"ENV" default:"development" required:"true"`       //  APP_ENV
-		LogLevel            string `json:"log_level" envconfig:"LOG_LEVEL" default:"info"`                          //  APP_LOG_LEVEL
-		EnableDebugFeatures bool   `json:"enable_debug_features" envconfig:"ENABLE_DEBUG_FEATURES" default:"false"` //  APP_ENABLE_DEBUG_FEATURES
-	} `json:"app" envconfig:"APP"`
+		Name                string `json:"name" mapstructure:"name"`
+		Environment         string `json:"environment" mapstructure:"environment"`
+		LogLevel            string `json:"log_level" mapstructure:"loglevel"`
+		EnableDebugFeatures bool   `json:"enable_debug_features" mapstructure:"enabledebugfeatures"`
+	} `json:"app" mapstructure:"app"`
 }
 
 func (e *EnvConfig) DBUrl() string {
@@ -66,17 +66,6 @@ var (
 	loadConfigOnce  sync.Once
 
 	allowedEnvironments = []string{EnvDevelopment, EnvStaging, EnvProduction}
-	// allowedLogLevels    = []zerolog.Level{
-	// 	zerolog.DebugLevel,
-	// 	zerolog.InfoLevel,
-	// 	zerolog.WarnLevel,
-	// 	zerolog.ErrorLevel,
-	// 	zerolog.FatalLevel,
-	// 	zerolog.PanicLevel,
-	// 	zerolog.NoLevel,
-	// 	zerolog.Disabled,
-	// 	zerolog.TraceLevel,
-	// }
 )
 
 func isValidValue(value string, allowedValues []string, caseSensitive bool) bool {
@@ -94,20 +83,69 @@ func isValidValue(value string, allowedValues []string, caseSensitive bool) bool
 	return false
 }
 
-// loadEnv contains the logic to load and validate environment configuration.
 func loadEnv(logger zerolog.Logger) {
-	logger.Info().Msg("Initializing and loading environment configuration")
-	var cfg EnvConfig
-	envconfig.MustProcess("", &cfg)
+	logger.Info().Msg("Initializing and loading environment configuration with Viper")
+	v := viper.New()
 
-	// Validate environment
-	if !isValidValue(cfg.App.Environment, allowedEnvironments, true) {
-		logger.Fatal().Msgf("Invalid APP_ENV value '%s'. Allowed values are: %v",
-			cfg.App.Environment, allowedEnvironments)
+	v.SetDefault("server.host", "localhost")
+	v.SetDefault("server.port", "8080")
+	v.SetDefault("server.readtimeout", "15s")
+	v.SetDefault("server.writetimeout", "15s")
+	v.SetDefault("server.idletimeout", "60s")
+	v.SetDefault("server.shutdowntimeout", "10s")
+
+	v.SetDefault("database.dialect", "postgres")
+	v.SetDefault("database.host", "localhost")
+	v.SetDefault("database.port", 5432)
+	v.SetDefault("database.user", "postgres")
+	v.SetDefault("database.name", "mendel_db")
+	v.SetDefault("database.sslmode", "disable")
+	v.SetDefault("database.maxopenconns", 25)
+	v.SetDefault("database.maxidleconns", 25)
+	v.SetDefault("database.connmaxlifetime", "5m")
+	v.SetDefault("database.migrationsfolder", "/app/internal/db/migrations")
+
+	v.SetDefault("app.name", "MendelApp")
+	v.SetDefault("app.environment", "development")
+	v.SetDefault("app.loglevel", "info")
+	v.SetDefault("app.enabledebugfeatures", false)
+
+	v.BindEnv("server.host", "SERVER_HOST")
+	v.BindEnv("server.port", "SERVER_PORT")
+	v.BindEnv("server.readtimeout", "SERVER_READ_TIMEOUT")
+	v.BindEnv("server.writetimeout", "SERVER_WRITE_TIMEOUT")
+	v.BindEnv("server.idletimeout", "SERVER_IDLE_TIMEOUT")
+	v.BindEnv("server.shutdowntimeout", "SERVER_SHUTDOWN_TIMEOUT")
+
+	v.BindEnv("database.dialect", "DB_DIALECT")
+	v.BindEnv("database.host", "DB_HOST")
+	v.BindEnv("database.port", "DB_PORT")
+	v.BindEnv("database.user", "DB_USER")
+	v.BindEnv("database.password", "DB_PASSWORD")
+	v.BindEnv("database.name", "DB_NAME")
+	v.BindEnv("database.sslmode", "DB_SSLMODE")
+	v.BindEnv("database.maxopenconns", "DB_MAX_OPEN_CONNS")
+	v.BindEnv("database.maxidleconns", "DB_MAX_IDLE_CONNS")
+	v.BindEnv("database.connmaxlifetime", "DB_CONN_MAX_LIFETIME")
+	v.BindEnv("database.migrationsfolder", "DB_MIGRATIONS_FOLDER")
+
+	v.BindEnv("app.name", "APP_NAME")
+	v.BindEnv("app.environment", "APP_ENV")
+	v.BindEnv("app.loglevel", "APP_LOG_LEVEL")
+	v.BindEnv("app.enabledebugfeatures", "APP_ENABLE_DEBUG_FEATURES")
+
+	var cfg EnvConfig
+	if err := v.Unmarshal(&cfg); err != nil {
+		logger.Fatal().Err(err).Msg("Failed to unmarshal configuration")
 	}
 
 	if cfg.App.Environment == EnvProduction && cfg.Database.Password == "" {
-		logger.Warn().Msg("DB_PASSWORD environment variable is not set in production. This might be a security risk or cause connection failure")
+		logger.Fatal().Msg("Required configuration DB_PASSWORD is not set")
+	}
+
+	if !isValidValue(cfg.App.Environment, allowedEnvironments, true) {
+		logger.Fatal().Msgf("Invalid APP_ENV value '%s'. Allowed values are: %v",
+			cfg.App.Environment, allowedEnvironments)
 	}
 
 	globalEnvConfig = &cfg
@@ -115,7 +153,6 @@ func loadEnv(logger zerolog.Logger) {
 }
 
 // Env returns the loaded environment configuration.
-// It ensures that the configuration is loaded exactly once, in a thread-safe manner.
 func Env(logger zerolog.Logger) *EnvConfig {
 	loadConfigOnce.Do(func() { loadEnv(logger) })
 
