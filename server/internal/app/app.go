@@ -5,6 +5,7 @@ package app
 import (
 	"context"
 	"database/sql"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/stdlib"
@@ -70,7 +71,7 @@ func (a *App) InitializeRoutes(env *constants.EnvConfig) {
 	a.Logger.Info().Msg("Initializing routes")
 
 	a.Router.GET("/", func(c *gin.Context) {
-		responses.RespondData(c, "ok")
+		responses.RespondData(c, "ok", http.StatusOK)
 	})
 
 	internalHandler := handlers.NewInternalHandler(a.DB, env)
