@@ -56,8 +56,6 @@ func (h *InternalHandler) Healthcheck(c *gin.Context) {
 }
 
 // EnvConfig responds to a request to expose the internal server config
-//   - environment variables for the given server
-//
 // Returns 404 in production
 func (h *InternalHandler) EnvCheck(c *gin.Context) {
 	if h.envConfig.App.Environment == constants.EnvProduction {

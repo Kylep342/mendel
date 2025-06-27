@@ -14,8 +14,6 @@ import (
 )
 
 func TestNewLogger(t *testing.T) {
-	// --- Arrange ---
-
 	// pre-test setup to ensure logger sets up proper read/write
 	originalStderr := os.Stderr
 	originalTimeFormat := zerolog.TimeFieldFormat
