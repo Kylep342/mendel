@@ -25,5 +25,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
+      - name: Install dependencies
+        working-directory: ./server
+        run: go mod download
+
       - name: Run unit tests
+        working-directory: ./server
         run: go test -v -cover ./...
