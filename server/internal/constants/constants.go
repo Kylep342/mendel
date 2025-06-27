@@ -18,10 +18,6 @@ const (
 	TablePlantSpecies  = "plant_species"
 	TableUser          = "user"
 
-	// Route params
-	ID      = "id"
-	ParamID = "/:id"
-
 	// Routes
 	RouteEnv           = "/env"
 	RouteHealth        = "/health"
