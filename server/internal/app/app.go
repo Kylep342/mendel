@@ -7,8 +7,11 @@ import (
 	"database/sql"
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+
 	_ "github.com/jackc/pgx/stdlib"
+	"github.com/jackc/pgx/v4/pgxpool"
 
 	"github.com/rs/zerolog"
 
@@ -22,6 +25,7 @@ import (
 // App is the singleton struct with components to run mendel
 type App struct {
 	DB     *sql.DB
+	DBPG   *pgxpool.Pool
 	Logger zerolog.Logger
 	Router *gin.Engine
 }
@@ -61,9 +65,32 @@ func (a *App) Initialize(logger zerolog.Logger, env *constants.EnvConfig) {
 
 	a.Logger.Info().Msg("Database connection successful")
 
+	// Postgres pgx setup
+	a.DBPG, err = pgxpool.Connect(ctx, env.DBUrl())
+	if err != nil {
+		a.Logger.Fatal().Err(err).Msg("Failed to open database connection")
+	}
+
+	ctxPG, cancelPG := context.WithTimeout(context.Background(), env.Server.ReadTimeout)
+	defer cancelPG()
+
+	_, err = a.DBPG.Exec(ctxPG, constants.DBInitQuery)
+	if err != nil {
+		a.Logger.Fatal().Err(err).Msg("failed to set search_path")
+	}
+
 	// Router setup
 	a.Router = gin.Default()
+	a.setupMiddleware(env)
 	a.InitializeRoutes(env)
+}
+
+func (a *App) setupMiddleware(env *constants.EnvConfig) {
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{env.App.WebHost}
+	config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
+	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept"}
+	a.Router.Use(cors.New(config))
 }
 
 // InitializeRoutes creates all endpoints for the api

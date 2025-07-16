@@ -1,3 +1,9 @@
+const BASE_URL = import.meta.env.VITE_API_BASE_URL
+
+if (!BASE_URL) {
+    console.error("Required Environment variable VITE_API_BASE_URL is not set.")
+}
+
 const BTN_ADMIN = 'Admin'
 const BTN_CLEAR = 'Clear';
 const BTN_COPY = 'Copy';
@@ -18,7 +24,16 @@ const BTN_PLANT = "Plants"
 const BTN_PLANT_CULTIVAR = "Cultivars"
 const BTN_PLANT_SPECIES = "Species"
 
+const ID_PLANT_CULTIVAR_FORM = "plant-cultivar-form"
+const ID_PLANT_FORM = "plant-form"
+const ID_PLANT_SPECIES_FORM = "plant-species-form"
+
+const TITLE_PLANT = "Plants"
+const TITLE_PLANT_CULTIVAR = "Plant Cultivars"
+const TITLE_PLANT_SPECIES = "Plant Species"
+
 export default Object.freeze({
+    BASE_URL,
     BTN_ADMIN,
     BTN_CLEAR,
     BTN_COPY,
@@ -37,4 +52,10 @@ export default Object.freeze({
     BTN_PLANT_CULTIVAR,
     BTN_PLANT_SPECIES,
     BTN_SAVE,
+    ID_PLANT_CULTIVAR_FORM,
+    ID_PLANT_FORM,
+    ID_PLANT_SPECIES_FORM,
+    TITLE_PLANT,
+    TITLE_PLANT_CULTIVAR,
+    TITLE_PLANT_SPECIES,
 });

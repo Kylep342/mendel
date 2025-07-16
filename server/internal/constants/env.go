@@ -45,6 +45,7 @@ type EnvConfig struct {
 		Environment         string `json:"environment" mapstructure:"environment"`
 		LogLevel            string `json:"log_level" mapstructure:"loglevel"`
 		EnableDebugFeatures bool   `json:"enable_debug_features" mapstructure:"enabledebugfeatures"`
+		WebHost             string `json:"web_host" mapstructure:"webhost"`
 	} `json:"app" mapstructure:"app"`
 }
 
@@ -109,6 +110,7 @@ func loadEnv(logger zerolog.Logger) {
 	v.SetDefault("app.environment", "development")
 	v.SetDefault("app.loglevel", "info")
 	v.SetDefault("app.enabledebugfeatures", false)
+	v.SetDefault("app.webhost", "http://localhost:5173")
 
 	v.BindEnv("server.host", "SERVER_HOST")
 	v.BindEnv("server.port", "SERVER_PORT")
@@ -133,6 +135,7 @@ func loadEnv(logger zerolog.Logger) {
 	v.BindEnv("app.environment", "APP_ENV")
 	v.BindEnv("app.loglevel", "APP_LOG_LEVEL")
 	v.BindEnv("app.enabledebugfeatures", "APP_ENABLE_DEBUG_FEATURES")
+	v.BindEnv("app.webhost", "APP_WEB_HOST")
 
 	var cfg EnvConfig
 	if err := v.Unmarshal(&cfg); err != nil {

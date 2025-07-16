@@ -9,12 +9,12 @@ const router = useRouter();
 const menuItems: Array<Button> = [
   { text: constants.BTN_HOME, onClick: () => router.push(routes.ROUTE_INDEX) },
   { text: constants.BTN_ADMIN, onClick: () => router.push(routes.ROUTE_INTERNAL) },
-  { text: constants.BTN_PLANT, onClick: () => router.push(routes.ROUTE_PLANT) },
-  { text: constants.BTN_PLANT_CULTIVAR, onClick: () => router.push(routes.ROUTE_PLANT_CULTIVAR) },
   { text: constants.BTN_PLANT_SPECIES, onClick: () => router.push(routes.ROUTE_PLANT_SPECIES) },
+  { text: constants.BTN_PLANT_CULTIVAR, onClick: () => router.push(routes.ROUTE_PLANT_CULTIVAR) },
+  { text: constants.BTN_PLANT, onClick: () => router.push(routes.ROUTE_PLANT) },
 ];
 
-const handleMenuItemClick = (action: () => void, event: Event) => {
+const handleMenuItemClick = (action: Function, event: Event) => {
   action();
 
   const detailsElement = (event.target as HTMLElement).closest('details');
