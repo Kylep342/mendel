@@ -1,14 +1,20 @@
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
-import { type PlantSpeciesData, usePlantSpeciesApi } from '@/composables/crud/createPlantSpecies';
+import { type PlantSpeciesData, usePlantSpeciesAPI } from '@/composables/plantSpecies/usePlantSpecies';
 
 export default defineStore('mendelCore', () => {
   // --- Composables ---
   const {
-    isLoading: isCreatingPlantSpecies,
-    error: createPlantSpeciesError,
-    createPlantSpecies: createPlantSpecies
-  } = usePlantSpeciesApi();
+    // Create
+    isCreatingPlantSpecies,
+    createPlantSpeciesError,
+    createPlantSpecies,
+    // Get All
+    plantSpeciesList,
+    isLoadingPlantSpeciesList,
+    getPlantSpeciesListError,
+    fetchAllPlantSpecies
+  } = usePlantSpeciesAPI();
 
   // --- Store State ---
   const plantSpeciesFormActive = ref<boolean>(false);
@@ -35,14 +41,34 @@ export default defineStore('mendelCore', () => {
    */
   const submitNewPlantSpecies = async (speciesData: PlantSpeciesData) => {
     const newSpecies = await createPlantSpecies(speciesData);
-
     if (newSpecies) {
-      console.log('A new species was successfully created:', newSpecies);
-      // On success, close the form.
       exitPlantSpeciesForm();
-      // TODO: add to local state array of species
+      // Append to existing local cache or create if empty
+      if (plantSpeciesList.value) {
+        plantSpeciesList.value.push(newSpecies);
+      } else {
+        plantSpeciesList.value = [newSpecies];
+      }
     }
-    // On failure, the form remains open and the error is automatically set in `createPlantSpeciesError`.
+    return newSpecies;
+  };
+
+
+  /**
+   * 
+   * @param {boolean} force override flag to force fetching independent of caching logic
+   * @returns 
+   */
+  const fetchAllPlantSpeciesIfNeeded = async (forceFetch: boolean=false) => {
+    if (!forceFetch) {
+      // If the list already has data, don't fetch again.
+      if (plantSpeciesList.value && plantSpeciesList.value.length > 0) {
+        console.log('Using cached Plant Species list.');
+        return;
+      }
+    }
+    // Otherwise, call the actual fetcher from the composable.
+    return fetchAllPlantSpecies();
   };
 
   return {
@@ -50,6 +76,11 @@ export default defineStore('mendelCore', () => {
     plantSpeciesFormActive,
     isCreatingPlantSpecies,
     createPlantSpeciesError,
+    // Get all
+    plantSpeciesList,
+    isLoadingPlantSpeciesList,
+    getPlantSpeciesListError,
+    fetchAllPlantSpecies: fetchAllPlantSpeciesIfNeeded,
 
     // Getters
     plantSpeciesFormTitle,
