@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/kylep342/mendel/internal/components"
 	"github.com/kylep342/mendel/internal/constants"
-	"github.com/kylep342/mendel/internal/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -91,7 +91,7 @@ func (m *MockCRUDTable[T]) Delete(ctx context.Context, id string) error {
 // It initializes a gin test context, a response recorder, our handler, and the mock table.
 func setupTest[T interface{}, PT interface {
 	~*T
-	models.Model
+	components.Model
 }](t *testing.T) (*httptest.ResponseRecorder, *gin.Context, *MockCRUDTable[T], *CRUDHandler[T, PT]) {
 	gin.SetMode(gin.TestMode)
 

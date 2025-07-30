@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/kylep342/mendel/internal/components/plants"
 	"github.com/kylep342/mendel/internal/constants"
 )
 
@@ -49,22 +48,22 @@ func NewStore(pool *pgxpool.Pool) *Store {
 }
 
 // Create inserts a new plant cultivar into the database
-func (s *Store) Create(ctx context.Context, pc *plants.PlantCultivar) error {
+func (s *Store) Create(ctx context.Context, pc *PlantCultivar) error {
 	err := s.conn.QueryRow(ctx, queryCreatePlantCultivar, pc.SpeciesID, pc.Name, pc.Cultivar, pc.Genetics).Scan(&pc.ID, &pc.CreatedAt, &pc.UpdatedAt)
 	return err
 }
 
 // GetAll retrieves all plant cultivars from the database
-func (s *Store) GetAll(ctx context.Context) ([]plants.PlantCultivar, error) {
+func (s *Store) GetAll(ctx context.Context) ([]PlantCultivar, error) {
 	rows, err := s.conn.Query(ctx, queryGetAllPlantCultivars)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var Cultivars []plants.PlantCultivar
+	var Cultivars []PlantCultivar
 	for rows.Next() {
-		var pc plants.PlantCultivar
+		var pc PlantCultivar
 		if err := rows.Scan(&pc.ID, &pc.SpeciesID, &pc.Name, &pc.Cultivar, &pc.CreatedAt, &pc.UpdatedAt, &pc.Genetics); err != nil {
 			return nil, err
 		}
@@ -74,14 +73,14 @@ func (s *Store) GetAll(ctx context.Context) ([]plants.PlantCultivar, error) {
 }
 
 // GetByID retrieves a plant cultivar identified by arg `id` from the database
-func (s *Store) GetByID(ctx context.Context, id string) (plants.PlantCultivar, error) {
-	var pc plants.PlantCultivar
+func (s *Store) GetByID(ctx context.Context, id string) (PlantCultivar, error) {
+	var pc PlantCultivar
 	err := s.conn.QueryRow(ctx, queryGetPlantCultivarByID, id).Scan(&pc.ID, &pc.SpeciesID, &pc.Name, &pc.Cultivar, &pc.CreatedAt, &pc.UpdatedAt, &pc.Genetics)
 	return pc, err
 }
 
 // Update modifies an existing plant cultivar in the database
-func (s *Store) Update(ctx context.Context, pc *plants.PlantCultivar) error {
+func (s *Store) Update(ctx context.Context, pc *PlantCultivar) error {
 	err := s.conn.QueryRow(ctx, queryUpdatePlantCultivar, pc.ID, pc.SpeciesID, pc.Name, pc.Cultivar, pc.Genetics).Scan(
 		&pc.ID, &pc.SpeciesID, &pc.Name, &pc.Cultivar, &pc.CreatedAt, &pc.UpdatedAt, &pc.Genetics,
 	)

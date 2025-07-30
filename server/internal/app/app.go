@@ -14,9 +14,9 @@ import (
 
 	"github.com/rs/zerolog"
 
-	"github.com/kylep342/mendel/internal/components/plant"
-	"github.com/kylep342/mendel/internal/components/plant_cultivar"
-	"github.com/kylep342/mendel/internal/components/plant_species"
+	"github.com/kylep342/mendel/internal/components/plants/plant"
+	"github.com/kylep342/mendel/internal/components/plants/plant_cultivar"
+	"github.com/kylep342/mendel/internal/components/plants/plant_species"
 	"github.com/kylep342/mendel/internal/constants"
 	"github.com/kylep342/mendel/internal/db"
 	"github.com/kylep342/mendel/internal/handlers"
