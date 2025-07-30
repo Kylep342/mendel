@@ -4,28 +4,28 @@ package app
 
 import (
 	"context"
-	"database/sql"
 	"net/http"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	_ "github.com/jackc/pgx/stdlib"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/rs/zerolog"
 
+	"github.com/kylep342/mendel/internal/components/plant"
+	"github.com/kylep342/mendel/internal/components/plant_cultivar"
+	"github.com/kylep342/mendel/internal/components/plant_species"
 	"github.com/kylep342/mendel/internal/constants"
 	"github.com/kylep342/mendel/internal/db"
 	"github.com/kylep342/mendel/internal/handlers"
-	"github.com/kylep342/mendel/internal/models/plants"
 	"github.com/kylep342/mendel/pkg/responses"
 )
 
 // App is the singleton struct with components to run mendel
 type App struct {
-	DB     *sql.DB
-	DBPG   *pgxpool.Pool
+	DB     *pgxpool.Pool
 	Logger zerolog.Logger
 	Router *gin.Engine
 }
@@ -41,32 +41,15 @@ func (a *App) Initialize(logger zerolog.Logger, env *constants.EnvConfig) {
 
 	a.Logger = logger
 
-	// Postgres setup
-	a.DB, err = sql.Open("pgx", env.DBUrl())
-	if err != nil {
-		a.Logger.Fatal().Err(err).Msg("Failed to open database connection")
-	}
-
-	a.DB.SetMaxOpenConns(env.Database.MaxOpenConns)
-	a.DB.SetMaxIdleConns(env.Database.MaxIdleConns)
-	a.DB.SetConnMaxLifetime(env.Database.ConnMaxLifetime)
-
 	ctx, cancel := context.WithTimeout(context.Background(), env.Server.ReadTimeout)
 	defer cancel()
 
-	if err = a.DB.PingContext(ctx); err != nil {
-		a.Logger.Fatal().Err(err).Msg("Failed to connect to database")
-	}
-
-	_, err = a.DB.Exec(constants.DBInitQuery)
-	if err != nil {
-		a.Logger.Fatal().Err(err).Msg("failed to set search_path")
-	}
-
-	a.Logger.Info().Msg("Database connection successful")
-
 	// Postgres pgx setup
-	a.DBPG, err = pgxpool.Connect(ctx, env.DBUrl())
+	pgConf, err := pgxpool.ParseConfig(env.DBUrl())
+	if err != nil {
+		a.Logger.Fatal().Err(err).Msg("failed to parse connection string")
+	}
+	a.DB, err = pgxpool.NewWithConfig(ctx, pgConf)
 	if err != nil {
 		a.Logger.Fatal().Err(err).Msg("Failed to open database connection")
 	}
@@ -74,7 +57,7 @@ func (a *App) Initialize(logger zerolog.Logger, env *constants.EnvConfig) {
 	ctxPG, cancelPG := context.WithTimeout(context.Background(), env.Server.ReadTimeout)
 	defer cancelPG()
 
-	_, err = a.DBPG.Exec(ctxPG, constants.DBInitQuery)
+	_, err = a.DB.Exec(ctxPG, constants.DBInitQuery)
 	if err != nil {
 		a.Logger.Fatal().Err(err).Msg("failed to set search_path")
 	}
@@ -107,9 +90,9 @@ func (a *App) InitializeRoutes(env *constants.EnvConfig) {
 	plantSpeciesHandler := handlers.NewCRUDHandler(
 		a.DB,
 		env,
-		func() *plants.PlantSpecies { return &plants.PlantSpecies{} },
-		func(d *sql.DB) db.CRUDTable[plants.PlantSpecies] {
-			return &db.PlantSpeciesTable{DB: d}
+		func() *plant_species.PlantSpecies { return &plant_species.PlantSpecies{} },
+		func(p *pgxpool.Pool) db.CRUDTable[plant_species.PlantSpecies] {
+			return &plant_species.Store{conn: p}
 		},
 	)
 	plantSpeciesHandler.RegisterRoutes(a.Router, constants.RoutePlantSpecies)
@@ -117,9 +100,9 @@ func (a *App) InitializeRoutes(env *constants.EnvConfig) {
 	plantCultivarHandler := handlers.NewCRUDHandler(
 		a.DB,
 		env,
-		func() *plants.PlantCultivar { return &plants.PlantCultivar{} },
-		func(d *sql.DB) db.CRUDTable[plants.PlantCultivar] {
-			return &db.PlantCultivarTable{DB: d}
+		func() *plant_cultivar.PlantCultivar { return &plant_cultivar.PlantCultivar{} },
+		func(p *pgxpool.Pool) db.CRUDTable[plant_cultivar.PlantCultivar] {
+			return &plant_cultivar.Store{conn: p}
 		},
 	)
 	plantCultivarHandler.RegisterRoutes(a.Router, constants.RoutePlantCultivar)
@@ -127,9 +110,9 @@ func (a *App) InitializeRoutes(env *constants.EnvConfig) {
 	plantHandler := handlers.NewCRUDHandler(
 		a.DB,
 		env,
-		func() *plants.Plant { return &plants.Plant{} },
-		func(d *sql.DB) db.CRUDTable[plants.Plant] {
-			return &db.PlantTable{DB: d}
+		func() *plant.Plant { return &plant.Plant{} },
+		func(p *pgxpool.Pool) db.CRUDTable[plant.Plant] {
+			return &plant.Store{conn: p}
 		},
 	)
 	plantHandler.RegisterRoutes(a.Router, constants.RoutePlant)

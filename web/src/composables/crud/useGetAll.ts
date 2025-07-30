@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 
+import constants from '@/constants/constants'
 /**
  * A generic, reusable composable for fetching all items from a resource via a GET request.
  * @template T The expected type of a single item in the returned array.
@@ -11,12 +12,7 @@ export function useGetAll<T>(apiPath: string) {
   const isLoading = ref<boolean>(false);
   const error = ref<string | null>(null);
 
-  // Get the base URL from environment variables
-  const baseUrl = import.meta.env.VITE_API_BASE_URL;
-  if (!baseUrl) {
-    console.error("VITE_API_BASE_URL is not set in your environment variables.");
-  }
-  const fullApiUrl = `${baseUrl}${apiPath}`;
+  const fullApiUrl = `${constants.BASE_URL}${apiPath}`;
 
   /**
    * Performs the API GET request to fetch all items.
@@ -34,13 +30,12 @@ export function useGetAll<T>(apiPath: string) {
         throw new Error(errorMessage);
       }
 
-      // On success, unpack the 'data' key which should contain the array
       data.value = jsonResponse.data as T[];
 
     } catch (e: any) {
       console.error(`Failed to fetch items from ${fullApiUrl}:`, e);
       error.value = e.message;
-      data.value = null; // Clear data on error
+      data.value = null;
     } finally {
       isLoading.value = false;
     }

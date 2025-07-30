@@ -1,11 +1,11 @@
-package db
+package plant_cultivar
 
 import (
 	"context"
-	"database/sql"
 
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/kylep342/mendel/internal/components/plants"
 	"github.com/kylep342/mendel/internal/constants"
-	"github.com/kylep342/mendel/internal/models/plants"
 )
 
 const (
@@ -40,19 +40,23 @@ const (
 	queryDeletePlantCultivar = `DELETE FROM ` + tablePlantCultivar + ` WHERE id = $1`
 )
 
-type PlantCultivarTable struct {
-	DB *sql.DB
+type Store struct {
+	conn *pgxpool.Pool
+}
+
+func NewStore(pool *pgxpool.Pool) *Store {
+	return &Store{conn: pool}
 }
 
 // Create inserts a new plant cultivar into the database
-func (repo *PlantCultivarTable) Create(ctx context.Context, pc *plants.PlantCultivar) error {
-	err := repo.DB.QueryRowContext(ctx, queryCreatePlantCultivar, pc.SpeciesID, pc.Name, pc.Cultivar, pc.Genetics).Scan(&pc.ID, &pc.CreatedAt, &pc.UpdatedAt)
+func (s *Store) Create(ctx context.Context, pc *plants.PlantCultivar) error {
+	err := s.conn.QueryRow(ctx, queryCreatePlantCultivar, pc.SpeciesID, pc.Name, pc.Cultivar, pc.Genetics).Scan(&pc.ID, &pc.CreatedAt, &pc.UpdatedAt)
 	return err
 }
 
 // GetAll retrieves all plant cultivars from the database
-func (repo *PlantCultivarTable) GetAll(ctx context.Context) ([]plants.PlantCultivar, error) {
-	rows, err := repo.DB.QueryContext(ctx, queryGetAllPlantCultivars)
+func (s *Store) GetAll(ctx context.Context) ([]plants.PlantCultivar, error) {
+	rows, err := s.conn.Query(ctx, queryGetAllPlantCultivars)
 	if err != nil {
 		return nil, err
 	}
@@ -70,22 +74,22 @@ func (repo *PlantCultivarTable) GetAll(ctx context.Context) ([]plants.PlantCulti
 }
 
 // GetByID retrieves a plant cultivar identified by arg `id` from the database
-func (repo *PlantCultivarTable) GetByID(ctx context.Context, id string) (plants.PlantCultivar, error) {
+func (s *Store) GetByID(ctx context.Context, id string) (plants.PlantCultivar, error) {
 	var pc plants.PlantCultivar
-	err := repo.DB.QueryRowContext(ctx, queryGetPlantCultivarByID, id).Scan(&pc.ID, &pc.SpeciesID, &pc.Name, &pc.Cultivar, &pc.CreatedAt, &pc.UpdatedAt, &pc.Genetics)
+	err := s.conn.QueryRow(ctx, queryGetPlantCultivarByID, id).Scan(&pc.ID, &pc.SpeciesID, &pc.Name, &pc.Cultivar, &pc.CreatedAt, &pc.UpdatedAt, &pc.Genetics)
 	return pc, err
 }
 
 // Update modifies an existing plant cultivar in the database
-func (repo *PlantCultivarTable) Update(ctx context.Context, pc *plants.PlantCultivar) error {
-	err := repo.DB.QueryRowContext(ctx, queryUpdatePlantCultivar, pc.ID, pc.SpeciesID, pc.Name, pc.Cultivar, pc.Genetics).Scan(
+func (s *Store) Update(ctx context.Context, pc *plants.PlantCultivar) error {
+	err := s.conn.QueryRow(ctx, queryUpdatePlantCultivar, pc.ID, pc.SpeciesID, pc.Name, pc.Cultivar, pc.Genetics).Scan(
 		&pc.ID, &pc.SpeciesID, &pc.Name, &pc.Cultivar, &pc.CreatedAt, &pc.UpdatedAt, &pc.Genetics,
 	)
 	return err
 }
 
 // Delete removes a plant cultivar from the database
-func (repo *PlantCultivarTable) Delete(ctx context.Context, id string) error {
-	_, err := repo.DB.ExecContext(ctx, queryDeletePlantCultivar, id)
+func (s *Store) Delete(ctx context.Context, id string) error {
+	_, err := s.conn.Exec(ctx, queryDeletePlantCultivar, id)
 	return err
 }

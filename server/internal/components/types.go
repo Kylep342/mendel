@@ -1,4 +1,4 @@
-package models
+package components
 
 type Model interface {
 	GetID() string

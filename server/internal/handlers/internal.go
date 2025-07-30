@@ -2,22 +2,27 @@ package handlers
 
 import (
 	"context"
-	"database/sql"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/kylep342/mendel/internal/constants"
 	"github.com/kylep342/mendel/pkg/responses"
 )
 
 type InternalHandler struct {
-	dbConn    *sql.DB
+	pool      *pgxpool.Pool
 	envConfig *constants.EnvConfig
 }
 
-func NewInternalHandler(dbConn *sql.DB, envConfig *constants.EnvConfig) *InternalHandler {
+const (
+	keyDb   = "db"
+	keyHttp = "http"
+)
+
+func NewInternalHandler(pool *pgxpool.Pool, envConfig *constants.EnvConfig) *InternalHandler {
 	return &InternalHandler{
-		dbConn:    dbConn,
+		pool:      pool,
 		envConfig: envConfig,
 	}
 }
@@ -35,14 +40,14 @@ func (h *InternalHandler) Healthcheck(c *gin.Context) {
 
 	// initialize per-component stats
 	componentStats := map[string]bool{
-		"http": true,
-		"db":   false,
+		keyHttp: true,
+		keyDb:   false,
 	}
 
 	// check readiness per component
-	err := h.dbConn.PingContext(ctx)
+	err := h.pool.Ping(ctx)
 	if err == nil {
-		componentStats["db"] = true
+		componentStats[keyDb] = true
 	}
 
 	// Respond

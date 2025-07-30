@@ -8,9 +8,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/kylep342/mendel/internal/components"
 	"github.com/kylep342/mendel/internal/constants"
 	"github.com/kylep342/mendel/internal/db"
-	"github.com/kylep342/mendel/internal/models"
 	"github.com/kylep342/mendel/pkg/responses"
 )
 
@@ -21,7 +22,7 @@ import (
 //	New: Constructor CRUDTable[T]
 type CRUDHandler[T any, PT interface {
 	~*T
-	models.Model
+	components.Model
 }] struct {
 	Env   *constants.EnvConfig
 	Table db.CRUDTable[T]
@@ -31,15 +32,15 @@ type CRUDHandler[T any, PT interface {
 // NewCRUDHandler is the constructor for CRUDHandler
 func NewCRUDHandler[T any, PT interface {
 	~*T
-	models.Model
+	components.Model
 }](
-	dbConn *sql.DB,
+	db *pgxpool.Pool,
 	env *constants.EnvConfig,
 	newModelFunc func() PT,
-	tableCreator func(d *sql.DB) db.CRUDTable[T],
+	tableCreator func(d *pgxpool.Pool) db.CRUDTable[T],
 ) *CRUDHandler[T, PT] {
 	return &CRUDHandler[T, PT]{
-		Table: tableCreator(dbConn),
+		Table: tableCreator(db),
 		New:   newModelFunc,
 		Env:   env,
 	}
@@ -111,7 +112,7 @@ func (h *CRUDHandler[T, PT]) Update(c *gin.Context) {
 
 	id := c.Param("id")
 	item := h.New()
-	if model, ok := any(item).(models.Model); ok {
+	if model, ok := any(item).(components.Model); ok {
 		model.SetID(id)
 	} else {
 		responses.RespondError(c, "failed to set ID on model", http.StatusInternalServerError)

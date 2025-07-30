@@ -1,11 +1,10 @@
-package db
+package plant_species
 
 import (
 	"context"
-	"database/sql"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/kylep342/mendel/internal/constants"
-	"github.com/kylep342/mendel/internal/models/plants"
 )
 
 const (
@@ -42,28 +41,28 @@ const (
 	queryDeletePlantSpecies = `DELETE FROM ` + tablePlantSpecies + ` WHERE id = $1`
 )
 
-type PlantSpeciesTable struct {
-	DB *sql.DB
+type Store struct {
+	conn *pgxpool.Pool
 }
 
 // Create inserts a new plant species into the database
-func (t *PlantSpeciesTable) Create(ctx context.Context, ps *plants.PlantSpecies) error {
+func (s *Store) Create(ctx context.Context, ps *PlantSpecies) error {
 	query := queryCreatePlantSpecies
-	err := t.DB.QueryRowContext(ctx, query, ps.Name, ps.Taxon).Scan(&ps.ID, &ps.CreatedAt, &ps.UpdatedAt)
+	err := s.conn.QueryRow(ctx, query, ps.Name, ps.Taxon).Scan(&ps.ID, &ps.CreatedAt, &ps.UpdatedAt)
 	return err
 }
 
 // GetAll retrieves all plant species from the database
-func (t *PlantSpeciesTable) GetAll(ctx context.Context) ([]plants.PlantSpecies, error) {
-	rows, err := t.DB.QueryContext(ctx, queryGetAllPlantSpecies)
+func (s *Store) GetAll(ctx context.Context) ([]PlantSpecies, error) {
+	rows, err := s.conn.Query(ctx, queryGetAllPlantSpecies)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var Species []plants.PlantSpecies
+	var Species []PlantSpecies
 	for rows.Next() {
-		var ps plants.PlantSpecies
+		var ps PlantSpecies
 		if err := rows.Scan(&ps.ID, &ps.Name, &ps.Taxon, &ps.CreatedAt, &ps.UpdatedAt); err != nil {
 			return nil, err
 		}
@@ -73,22 +72,22 @@ func (t *PlantSpeciesTable) GetAll(ctx context.Context) ([]plants.PlantSpecies, 
 }
 
 // GetByID retrieves a plant species identified by argument `id` from the database
-func (t *PlantSpeciesTable) GetByID(ctx context.Context, id string) (plants.PlantSpecies, error) {
-	var ps plants.PlantSpecies
-	err := t.DB.QueryRowContext(ctx, queryGetByIDPlantSpecies, id).Scan(&ps.ID, &ps.Name, &ps.Taxon, &ps.CreatedAt, &ps.UpdatedAt)
+func (s *Store) GetByID(ctx context.Context, id string) (PlantSpecies, error) {
+	var ps PlantSpecies
+	err := s.conn.QueryRow(ctx, queryGetByIDPlantSpecies, id).Scan(&ps.ID, &ps.Name, &ps.Taxon, &ps.CreatedAt, &ps.UpdatedAt)
 	return ps, err
 }
 
 // Update updates a plant species identified by argument `id` in the database
-func (t *PlantSpeciesTable) Update(ctx context.Context, ps *plants.PlantSpecies) error {
-	err := t.DB.QueryRowContext(ctx, queryUpdatePlantSpecies, ps.Name, ps.Taxon, ps.ID).Scan(
+func (s *Store) Update(ctx context.Context, ps *PlantSpecies) error {
+	err := s.conn.QueryRow(ctx, queryUpdatePlantSpecies, ps.Name, ps.Taxon, ps.ID).Scan(
 		&ps.ID, &ps.Name, &ps.Taxon, &ps.CreatedAt, &ps.UpdatedAt,
 	)
 	return err
 }
 
 // Delete removes a plant species identified by argument `id` from the database
-func (t *PlantSpeciesTable) Delete(ctx context.Context, id string) error {
-	_, err := t.DB.ExecContext(ctx, queryDeletePlantSpecies, id)
+func (s *Store) Delete(ctx context.Context, id string) error {
+	_, err := s.conn.Exec(ctx, queryDeletePlantSpecies, id)
 	return err
 }
