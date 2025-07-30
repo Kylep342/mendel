@@ -39,17 +39,17 @@ const (
 // Store handles all database operations for the Plant entity.
 // It uses a pgxpool for connection management.
 type Store struct {
-	conn *pgxpool.Pool
+	Conn *pgxpool.Pool
 }
 
 // NewStore creates a new Plant Store.
 func NewStore(pool *pgxpool.Pool) *Store {
-	return &Store{conn: pool}
+	return &Store{Conn: pool}
 }
 
 // List retrieves all plants from the database.
-func (s *Store) List(ctx context.Context) ([]Plant, error) {
-	rows, err := s.conn.Query(ctx, queryListPlants)
+func (s *Store) GetAll(ctx context.Context) ([]Plant, error) {
+	rows, err := s.Conn.Query(ctx, queryListPlants)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (s *Store) List(ctx context.Context) ([]Plant, error) {
 // GetByID retrieves a single plant by its ID.
 func (s *Store) GetByID(ctx context.Context, id string) (Plant, error) {
 	var p Plant
-	err := s.conn.QueryRow(ctx, queryGetPlantByID, id).Scan(
+	err := s.Conn.QueryRow(ctx, queryGetPlantByID, id).Scan(
 		&p.ID,
 		&p.CultivarID,
 		&p.SpeciesID,
@@ -105,7 +105,7 @@ func (s *Store) GetByID(ctx context.Context, id string) (Plant, error) {
 func (s *Store) Create(ctx context.Context, p *Plant) error {
 	p.PlantedAt = sql.NullTime{Time: time.Now(), Valid: true}
 
-	err := s.conn.QueryRow(ctx, queryCreatePlant,
+	err := s.Conn.QueryRow(ctx, queryCreatePlant,
 		p.CultivarID,
 		p.SpeciesID,
 		p.SeedID,
@@ -123,7 +123,7 @@ func (s *Store) Create(ctx context.Context, p *Plant) error {
 // Update modifies an existing plant record.
 // It scans the full updated record back into the provided struct.
 func (s *Store) Update(ctx context.Context, p *Plant) error {
-	return s.conn.QueryRow(ctx, queryUpdatePlant,
+	return s.Conn.QueryRow(ctx, queryUpdatePlant,
 		p.ID,
 		p.CultivarID,
 		p.SpeciesID,
@@ -150,6 +150,6 @@ func (s *Store) Update(ctx context.Context, p *Plant) error {
 
 // Delete removes a plant record from the database by its ID.
 func (s *Store) Delete(ctx context.Context, id string) error {
-	_, err := s.conn.Exec(ctx, queryDeletePlant, id)
+	_, err := s.Conn.Exec(ctx, queryDeletePlant, id)
 	return err
 }

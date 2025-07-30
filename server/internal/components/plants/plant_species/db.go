@@ -42,19 +42,19 @@ const (
 )
 
 type Store struct {
-	conn *pgxpool.Pool
+	Conn *pgxpool.Pool
 }
 
 // Create inserts a new plant species into the database
 func (s *Store) Create(ctx context.Context, ps *PlantSpecies) error {
 	query := queryCreatePlantSpecies
-	err := s.conn.QueryRow(ctx, query, ps.Name, ps.Taxon).Scan(&ps.ID, &ps.CreatedAt, &ps.UpdatedAt)
+	err := s.Conn.QueryRow(ctx, query, ps.Name, ps.Taxon).Scan(&ps.ID, &ps.CreatedAt, &ps.UpdatedAt)
 	return err
 }
 
 // GetAll retrieves all plant species from the database
 func (s *Store) GetAll(ctx context.Context) ([]PlantSpecies, error) {
-	rows, err := s.conn.Query(ctx, queryGetAllPlantSpecies)
+	rows, err := s.Conn.Query(ctx, queryGetAllPlantSpecies)
 	if err != nil {
 		return nil, err
 	}
@@ -74,13 +74,13 @@ func (s *Store) GetAll(ctx context.Context) ([]PlantSpecies, error) {
 // GetByID retrieves a plant species identified by argument `id` from the database
 func (s *Store) GetByID(ctx context.Context, id string) (PlantSpecies, error) {
 	var ps PlantSpecies
-	err := s.conn.QueryRow(ctx, queryGetByIDPlantSpecies, id).Scan(&ps.ID, &ps.Name, &ps.Taxon, &ps.CreatedAt, &ps.UpdatedAt)
+	err := s.Conn.QueryRow(ctx, queryGetByIDPlantSpecies, id).Scan(&ps.ID, &ps.Name, &ps.Taxon, &ps.CreatedAt, &ps.UpdatedAt)
 	return ps, err
 }
 
 // Update updates a plant species identified by argument `id` in the database
 func (s *Store) Update(ctx context.Context, ps *PlantSpecies) error {
-	err := s.conn.QueryRow(ctx, queryUpdatePlantSpecies, ps.Name, ps.Taxon, ps.ID).Scan(
+	err := s.Conn.QueryRow(ctx, queryUpdatePlantSpecies, ps.Name, ps.Taxon, ps.ID).Scan(
 		&ps.ID, &ps.Name, &ps.Taxon, &ps.CreatedAt, &ps.UpdatedAt,
 	)
 	return err
@@ -88,6 +88,6 @@ func (s *Store) Update(ctx context.Context, ps *PlantSpecies) error {
 
 // Delete removes a plant species identified by argument `id` from the database
 func (s *Store) Delete(ctx context.Context, id string) error {
-	_, err := s.conn.Exec(ctx, queryDeletePlantSpecies, id)
+	_, err := s.Conn.Exec(ctx, queryDeletePlantSpecies, id)
 	return err
 }

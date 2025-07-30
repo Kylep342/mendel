@@ -92,7 +92,7 @@ func (a *App) InitializeRoutes(env *constants.EnvConfig) {
 		env,
 		func() *plant_species.PlantSpecies { return &plant_species.PlantSpecies{} },
 		func(p *pgxpool.Pool) db.CRUDTable[plant_species.PlantSpecies] {
-			return &plant_species.Store{conn: p}
+			return &plant_species.Store{Conn: p}
 		},
 	)
 	plantSpeciesHandler.RegisterRoutes(a.Router, constants.RoutePlantSpecies)
@@ -102,7 +102,7 @@ func (a *App) InitializeRoutes(env *constants.EnvConfig) {
 		env,
 		func() *plant_cultivar.PlantCultivar { return &plant_cultivar.PlantCultivar{} },
 		func(p *pgxpool.Pool) db.CRUDTable[plant_cultivar.PlantCultivar] {
-			return &plant_cultivar.Store{conn: p}
+			return &plant_cultivar.Store{Conn: p}
 		},
 	)
 	plantCultivarHandler.RegisterRoutes(a.Router, constants.RoutePlantCultivar)
@@ -112,7 +112,7 @@ func (a *App) InitializeRoutes(env *constants.EnvConfig) {
 		env,
 		func() *plant.Plant { return &plant.Plant{} },
 		func(p *pgxpool.Pool) db.CRUDTable[plant.Plant] {
-			return &plant.Store{conn: p}
+			return &plant.Store{Conn: p}
 		},
 	)
 	plantHandler.RegisterRoutes(a.Router, constants.RoutePlant)
