@@ -24,7 +24,7 @@ export function usePlantCultivarAPI() {
     isLoading: isCreatingPlantCultivar,
     error: createPlantCultivarError,
     create: createItem
-  } = useCreate<PlantCultivar>(routes.ROUTE_PLANT_SPECIES);
+  } = useCreate<PlantCultivar>(routes.ROUTE_PLANT_CULTIVAR);
 
   const createPlantCultivar = async (speciesData: PlantCultivarData): Promise<PlantCultivar | null> => {
     return createItem(speciesData);
@@ -36,7 +36,7 @@ export function usePlantCultivarAPI() {
     isLoading: isLoadingPlantCultivarList,
     error: getPlantCultivarListError,
     fetchAll: fetchAllPlantCultivar
-  } = useGetAll<PlantCultivar>(routes.ROUTE_PLANT_SPECIES);
+  } = useGetAll<PlantCultivar>(routes.ROUTE_PLANT_CULTIVAR);
 
   return {
     // Create

@@ -10,6 +10,7 @@ const state = useMendelCoreStore();
 const name = ref<string | null>(null);
 const cultivar = ref<string | null>(null);
 const species_id = ref<string | null>(null);
+const genetics = ref<Record<string, any | null>>({});
 
 const createButtonEnabled = computed<boolean>(
   () => [name.value, cultivar.value, species_id.value].every(
@@ -21,6 +22,7 @@ const clearForm = () => {
   name.value = null;
   cultivar.value = null;
   species_id.value = null;
+  genetics.value = {};
 };
 
 const exit = () => {
@@ -33,6 +35,7 @@ const createPlantCultivar = () => {
     name: name.value,
     cultivar: cultivar.value,
     species_id: species_id.value,
+    genetics: genetics.value,
   }
   const resp = state.submitNewPlantCultivar(data)
   console.log(`Response was ${resp}`)
@@ -73,13 +76,18 @@ const createPlantCultivar = () => {
             class="select select-bordered w-full max-w-xs"
           >
             <option
-              v-for="(name, id) in state.plantSpeciesIdentifiers"
+              v-for="(id, name) in state.plantSpeciesIdentifiers"
               :key="name"
               :value="id"
             >
               {{ name }}
             </option>
           </select>
+          <div :class="['label']">
+            <span :class="['label-text']">Genetics</span>
+          </div>
+          <input :id="`${constants.ID_PLANT_CULTIVAR_FORM}-genetics`" v-model="genetics"
+            :class="['input input-bordered input-secondary w-full max-ws']" type="string" label="Genetics">
       </div>
     </template>
     <template #actions>
