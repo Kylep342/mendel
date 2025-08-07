@@ -20,20 +20,46 @@ const (
 	`
 	// queryGetAllPlantCultivars is the query template literal to get all plant cultivars
 	queryGetAllPlantCultivars = `
-		SELECT id, species_id, name, cultivar, created_at, updated_at, genetics
+		SELECT
+			id
+			, species_id
+			, name
+			, cultivar
+			, created_at
+			, updated_at
+			, genetics
 		FROM ` + tablePlantCultivar
 
 	// queryGetPlantCultivarByID is the query template literal to get a plant cultivar by ID
 	queryGetPlantCultivarByID = `
-		SELECT id, species_id, name, cultivar, created_at, updated_at, genetics
+		SELECT
+			id
+			, species_id
+			, name
+			, cultivar
+			, created_at
+			, updated_at
+			, genetics
 		FROM ` + tablePlantCultivar + ` WHERE id = $1
 	`
 	// queryUpdatePlantCultivar is the query template literal to update a plant cultivar
 	queryUpdatePlantCultivar = `
 		UPDATE ` + tablePlantCultivar + `
-		SET species_id = $2, name = $3, cultivar = $4, genetics = $5
-		WHERE id = $1
-		RETURNING id, species_id, name, cultivar, created_at, updated_at, genetics
+		SET
+			species_id = $2
+			, name = $3
+			, cultivar = $4
+			, genetics = $5
+		WHERE
+			id = $1
+		RETURNING
+			id
+			, species_id
+			, name
+			, cultivar
+			, created_at
+			, updated_at
+			, genetics
 	`
 	// queryDeletePlantCultivar is the query template literal to delete a plant cultivar
 	queryDeletePlantCultivar = `DELETE FROM ` + tablePlantCultivar + ` WHERE id = $1`

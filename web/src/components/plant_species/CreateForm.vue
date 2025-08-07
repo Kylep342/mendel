@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 
 import constants from '../../constants/constants';
 import useMendelCoreStore from '@/stores/core';
-import type { PlantSpeciesData } from '@/composables/plantSpecies/usePlantSpecies';
+import type { PlantSpeciesData } from '@/components/plant_species/composables/useAPI';
 
 const state = useMendelCoreStore();
 

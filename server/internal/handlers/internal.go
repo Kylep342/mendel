@@ -16,8 +16,8 @@ type InternalHandler struct {
 }
 
 const (
-	keyDb   = "db"
-	keyHttp = "http"
+	healthDb   = "db"
+	healthHttp = "http"
 )
 
 func NewInternalHandler(pool *pgxpool.Pool, envConfig *constants.EnvConfig) *InternalHandler {
@@ -40,14 +40,14 @@ func (h *InternalHandler) Healthcheck(c *gin.Context) {
 
 	// initialize per-component stats
 	componentStats := map[string]bool{
-		keyHttp: true,
-		keyDb:   false,
+		healthHttp: true,
+		healthDb:   false,
 	}
 
 	// check readiness per component
 	err := h.pool.Ping(ctx)
 	if err == nil {
-		componentStats[keyDb] = true
+		componentStats[healthDb] = true
 	}
 
 	// Respond

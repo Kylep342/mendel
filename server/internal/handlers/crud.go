@@ -104,7 +104,6 @@ func (h *CRUDHandler[T, PT]) GetByID(c *gin.Context) {
 	responses.RespondData(c, item, http.StatusOK)
 }
 
-// TODO: This method is not passing JSON params from HTTP put methods and populating the model (e.g. "name", "taxon")
 // Update responds to a request to change the requested record in CRUDTable[T]
 func (h *CRUDHandler[T, PT]) Update(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), h.Env.Server.WriteTimeout)
@@ -116,6 +115,11 @@ func (h *CRUDHandler[T, PT]) Update(c *gin.Context) {
 		model.SetID(id)
 	} else {
 		responses.RespondError(c, "failed to set ID on model", http.StatusInternalServerError)
+		return
+	}
+
+	if err := json.NewDecoder(c.Request.Body).Decode(item); err != nil {
+		responses.RespondError(c, err.Error(), http.StatusBadRequest)
 		return
 	}
 

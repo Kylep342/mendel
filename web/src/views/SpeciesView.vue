@@ -3,7 +3,7 @@ import { computed, onMounted } from 'vue';
 
 import constants from '@/constants/constants';
 import useMendelCoreStore from '@/stores/core';
-import PlantSpeciesForm from '@/components/forms/PlantSpeciesForm.vue';
+import PlantSpeciesForm from '@/components/plant_species/CreateForm.vue';
 import { useModal } from '@/composables/useModal';
 
 const state = useMendelCoreStore();

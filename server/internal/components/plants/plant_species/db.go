@@ -45,6 +45,10 @@ type Store struct {
 	Conn *pgxpool.Pool
 }
 
+func NewStore(pool *pgxpool.Pool) *Store {
+	return &Store{Conn: pool}
+}
+
 // Create inserts a new plant species into the database
 func (s *Store) Create(ctx context.Context, ps *PlantSpecies) error {
 	query := queryCreatePlantSpecies
