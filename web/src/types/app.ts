@@ -38,3 +38,8 @@ export type FetchWrappable = {
   data: any
   // dataContent: any
 }
+
+
+export interface JSONable {
+  toJSON(): any;
+}

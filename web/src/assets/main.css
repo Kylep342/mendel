@@ -12,6 +12,7 @@ html {
   --text-on-primary: black;
   --text-on-secondary: black;
   --background-color: oklch(0.95 0 0);
+  --urgent-color: oklch(.5021 0.2007 15.5);
 }
 
 body {

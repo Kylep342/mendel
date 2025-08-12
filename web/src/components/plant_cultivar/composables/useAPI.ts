@@ -1,15 +1,18 @@
 import { useCreate } from '@/composables/crud/useCreate';
 import { useGetAll } from '@/composables/crud/useGetAll';
 import routes from '@/constants/routes';
+import { type JSONable } from '@/types/app';
 
-export interface PlantCultivarData {
+// Request interface | Front end -> Back end
+export interface PlantCultivarDTO {
   name: string;
   cultivar: string;
   species_id: string;
-  genetics: Record<string, any>;
+  genetics: Record<string, JSONable>;
 }
 
-export interface PlantCultivar extends PlantCultivarData {
+// Response interface | Back end -> Front end
+export interface PlantCultivar extends PlantCultivarDTO {
   id: string;
   created_at: string;
   updated_at: string;
@@ -26,7 +29,7 @@ export function usePlantCultivarAPI() {
     create: createItem
   } = useCreate<PlantCultivar>(routes.ROUTE_PLANT_CULTIVAR);
 
-  const createPlantCultivar = async (speciesData: PlantCultivarData): Promise<PlantCultivar | null> => {
+  const createPlantCultivar = async (speciesData: PlantCultivarDTO): Promise<PlantCultivar | null> => {
     return createItem(speciesData);
   };
 

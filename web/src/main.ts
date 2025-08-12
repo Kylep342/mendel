@@ -11,6 +11,7 @@ import BaseMenu from '@/components/ui/BaseMenu.vue';
 import BaseModal from '@/components/ui/BaseModal.vue';
 import BaseTable from '@/components/ui/BaseTable.vue';
 import BaseTabs from '@/components/ui/BaseTabs.vue';
+import ExitButton from '@/components/ui/ExitButton.vue';
 import App from './App.vue'
 
 const app = createApp(App)
@@ -23,6 +24,7 @@ app.component('BaseMenu', BaseMenu)
 app.component('BaseModal', BaseModal)
 app.component('BaseTable', BaseTable)
 app.component('BaseTabs', BaseTabs)
+app.component('ExitButton', ExitButton)
 
 app.use(createPinia())
 app.use(router)

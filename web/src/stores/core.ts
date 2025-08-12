@@ -1,10 +1,23 @@
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
-import { type PlantCultivarData, usePlantCultivarAPI } from '@/components/plant_cultivar/composables/useAPI';
-import { type PlantSpeciesData, usePlantSpeciesAPI } from '@/components/plant_species/composables/useAPI';
+import { type PlantDTO, usePlantAPI } from '@/components/plant/composables/useAPI';
+import { type PlantCultivarDTO, usePlantCultivarAPI } from '@/components/plant_cultivar/composables/useAPI';
+import { type PlantSpeciesDTO, usePlantSpeciesAPI } from '@/components/plant_species/composables/useAPI';
 
 export default defineStore('mendelCore', () => {
   // --- Composables ---
+  const {
+    // Create
+    isCreatingPlant,
+    createPlantError,
+    createPlant,
+    // Get All
+    plantList,
+    isLoadingPlantList,
+    getPlantListError,
+    fetchAllPlant
+  } = usePlantAPI();
+
   const {
     // Create
     isCreatingPlantCultivar,
@@ -30,17 +43,24 @@ export default defineStore('mendelCore', () => {
   } = usePlantSpeciesAPI();
 
   // --- Store State ---
+  const plantFormActive = ref<boolean>(false);
   const plantCultivarFormActive = ref<boolean>(false);
   const plantSpeciesFormActive = ref<boolean>(false);
 
   // --- Getters / Computed ---
+  const plantFormTitle = computed(() => 'Creating a Plant');
   const plantCultivarFormTitle = computed(() => 'Creating a Plant Cultivar');
   const plantSpeciesFormTitle = computed(() => 'Creating a Plant Species');
   const plantSpeciesIdentifiers = computed(() => {
     if (!plantSpeciesList.value) {
       return {};
     }
-    return plantSpeciesList.value.reduce((acc, species) => {
+
+    const sortedSpecies = [...plantSpeciesList.value].sort((a, b) => {
+      return a.name.localeCompare(b.name);
+    });
+
+    return sortedSpecies.reduce((acc, species) => {
       acc[species.name] = species.id;
       return acc;
     }, {} as Record<string, string>);
@@ -48,6 +68,9 @@ export default defineStore('mendelCore', () => {
 
   // --- Actions ---
 
+  const showPlantForm = () => {
+    plantFormActive.value = true;
+  };
   const showPlantCultivarForm = () => {
     plantCultivarFormActive.value = true;
   };
@@ -55,6 +78,12 @@ export default defineStore('mendelCore', () => {
     plantSpeciesFormActive.value = true;
   };
 
+  const exitPlantForm = () => {
+    plantFormActive.value = false;
+    if (createPlantError.value) {
+      createPlantError.value = null;
+    }
+  };
   const exitPlantCultivarForm = () => {
     plantCultivarFormActive.value = false;
     if (createPlantCultivarError.value) {
@@ -71,9 +100,29 @@ export default defineStore('mendelCore', () => {
   /**
    * Orchestrates the creation of a new plant cultivar.
    * Closes the form on success.
-   * @param {PlantCultivarData} cultivarData The data for the new plant cultivar
+   * @param {PlantCultivarDTO} plantData The data for the new plant cultivar
    */
-  const submitNewPlantCultivar = async (cultivarData: PlantCultivarData) => {
+  const submitNewPlant = async (plantData: PlantDTO) => {
+    const newPlant = await createPlant(plantData);
+    if (newPlant) {
+      exitPlantForm();
+      // Append to existing local cache or create if empty
+      if (plantList.value) {
+        plantList.value.push(newPlant);
+      } else {
+        plantList.value = [newPlant];
+      }
+    }
+    return newPlant;
+  };
+
+
+  /**
+   * Orchestrates the creation of a new plant cultivar.
+   * Closes the form on success.
+   * @param {PlantCultivarDTO} cultivarData The data for the new plant cultivar
+   */
+  const submitNewPlantCultivar = async (cultivarData: PlantCultivarDTO) => {
     const newCultivar = await createPlantCultivar(cultivarData);
     if (newCultivar) {
       exitPlantCultivarForm();
@@ -90,9 +139,9 @@ export default defineStore('mendelCore', () => {
   /**
    * Orchestrates the creation of a new plant species.
    * Closes the form on success.
-   * @param {PlantSpeciesData} speciesData The data for the new plant species.
+   * @param {PlantSpeciesDTO} speciesData The data for the new plant species.
    */
-  const submitNewPlantSpecies = async (speciesData: PlantSpeciesData) => {
+  const submitNewPlantSpecies = async (speciesData: PlantSpeciesDTO) => {
     const newSpecies = await createPlantSpecies(speciesData);
     if (newSpecies) {
       exitPlantSpeciesForm();
@@ -107,6 +156,22 @@ export default defineStore('mendelCore', () => {
   };
 
 
+  /**
+   *
+   * @param {boolean} force override flag to force fetching independent of caching logic
+   * @returns
+   */
+  const fetchAllPlantIfNeeded = async (forceFetch: boolean=false) => {
+    if (!forceFetch) {
+      // If the list already has data, don't fetch again.
+      if (plantList.value && plantList.value.length > 0) {
+        console.log('Using cached Plant list.');
+        return;
+      }
+    }
+    // Otherwise, call the actual fetcher from the composable.
+    return fetchAllPlant();
+  };
   /**
    *
    * @param {boolean} force override flag to force fetching independent of caching logic
@@ -142,6 +207,9 @@ export default defineStore('mendelCore', () => {
 
   return {
     // State
+    plantFormActive,
+    isCreatingPlant,
+    createPlant,
     plantCultivarFormActive,
     isCreatingPlantCultivar,
     createPlantCultivarError,
@@ -149,6 +217,10 @@ export default defineStore('mendelCore', () => {
     isCreatingPlantSpecies,
     createPlantSpeciesError,
     // Get all
+    plantList,
+    isLoadingPlantList,
+    getPlantListError,
+    fetchAllPlant: fetchAllPlantIfNeeded,
     plantSpeciesIdentifiers,
     plantSpeciesList,
     isLoadingPlantSpeciesList,
@@ -161,10 +233,14 @@ export default defineStore('mendelCore', () => {
     fetchAllPlantCultivar: fetchAllPlantCultivarIfNeeded,
 
     // Getters
+    plantFormTitle,
     plantCultivarFormTitle,
     plantSpeciesFormTitle,
 
     // Actions
+    showPlantForm,
+    exitPlantForm,
+    submitNewPlant,
     showPlantCultivarForm,
     exitPlantCultivarForm,
     submitNewPlantCultivar,

@@ -18,3 +18,7 @@ Goal - Allow for the characterization and assessment of traits across generation
  - harvest
     - occurs to plants
     - yields food/seeds that will determine genetics (expressed ones)
+
+New naming hierarchy:
+species -> cultivar -> plant
+crop -> cultivar -> plant
