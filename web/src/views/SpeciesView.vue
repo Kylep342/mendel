@@ -2,11 +2,11 @@
 import { computed, onMounted } from 'vue';
 
 import constants from '@/constants/constants';
-import useMendelCoreStore from '@/stores/core';
+import usePlantSpeciesStore from '@/components/plant_species/store';
 import PlantSpeciesForm from '@/components/plant_species/CreateForm.vue';
 import { useModal } from '@/composables/useModal';
 
-const state = useMendelCoreStore();
+const state = usePlantSpeciesStore();
 
 useModal(computed(() => state.plantSpeciesFormActive), constants.ID_PLANT_SPECIES_FORM);
 

@@ -1,42 +1,35 @@
-import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
-import { type PlantRequest, usePlantAPI } from '@/components/plant/useAPI';
+import { computed, ref } from 'vue';
 
-export default defineStore('mendelCore', () => {
-  // --- Composables ---
-  const {
-    // Create
-    isCreatingPlant,
-    createPlantError,
-    createPlant,
-    // Get All
-    plantList,
-    isLoadingPlantList,
-    getPlantListError,
-    fetchAllPlant
-  } = usePlantAPI();
+import { type PlantRequest, usePlantAPI } from './useAPI';
 
+export default defineStore('plantAPI', () => {
+    const {
+        isCreatingPlant,
+        createPlantError,
+        createPlant,
+        plantList,
+        isLoadingPlantList,
+        getPlantListError,
+        fetchAllPlant,
+    } = usePlantAPI();
 
-  // --- Store State ---
-  const plantFormActive = ref<boolean>(false);
+    const plantFormActive = ref<boolean>(false);
 
-  // --- Getters / Computed ---
-  const plantFormTitle = computed(() => 'Creating a Plant');
+    const plantFormTitle = computed(() => 'Creating a Plant');
 
-  // --- Actions ---
+    const showPlantForm = () => {
+        plantFormActive.value = true;
+    };
 
-  const showPlantForm = () => {
-    plantFormActive.value = true;
-  };
+    const exitPlantForm = () => {
+        plantFormActive.value = false;
+        if (createPlantError.value) {
+            createPlantError.value = null;
+        }
+    };
 
-  const exitPlantForm = () => {
-    plantFormActive.value = false;
-    if (createPlantError.value) {
-      createPlantError.value = null;
-    }
-  };
-
-  /**
+    /**
    * Orchestrates the creation of a new plant cultivar.
    * Closes the form on success.
    * @param {PlantCultivarRequest} plantData The data for the new plant cultivar
@@ -55,10 +48,7 @@ export default defineStore('mendelCore', () => {
     return newPlant;
   };
 
-
-
-
-  /**
+/**
    *
    * @param {boolean} force override flag to force fetching independent of caching logic
    * @returns
@@ -76,23 +66,17 @@ export default defineStore('mendelCore', () => {
   };
 
   return {
-    // State
-    plantFormActive,
-    isCreatingPlant,
     createPlant,
-    // Get all
-    plantList,
-    isLoadingPlantList,
-    getPlantListError,
-    fetchAllPlant: fetchAllPlantIfNeeded,
-    // plantCultivarIdentifiers,
-
-    // Getters
-    plantFormTitle,
-
-    // Actions
-    showPlantForm,
+    createPlantError,
     exitPlantForm,
+    fetchAllPlant: fetchAllPlantIfNeeded,
+    getPlantListError,
+    isCreatingPlant,
+    isLoadingPlantList,
+    plantFormActive,
+    plantFormTitle,
+    plantList,
+    showPlantForm,
     submitNewPlant,
-  };
+  }
 });

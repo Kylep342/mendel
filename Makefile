@@ -1,10 +1,10 @@
 build:
 	docker compose --profile dev build
 
-up:
+start:
 	docker compose --profile dev up
 
-down:
+stop:
 	docker compose --profile dev down --remove-orphans
 
 psql:

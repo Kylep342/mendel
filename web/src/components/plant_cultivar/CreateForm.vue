@@ -2,10 +2,12 @@
 import { computed, ref } from 'vue';
 
 import constants from '../../constants/constants';
-import useMendelCoreStore from '@/stores/core';
-import type { PlantCultivarDTO } from '@/components/plant_cultivar/composables/useAPI';
+import usePlantCultivarStore from './store';
+import usePlantSpeciesStore from '@/components/plant_species/store';
+import type { PlantCultivarRequest } from '@/components/plant_cultivar/useAPI';
 
-const state = useMendelCoreStore();
+const species = usePlantSpeciesStore();
+const state = usePlantCultivarStore();
 
 const name = ref<string | null>(null);
 const cultivar = ref<string | null>(null);
@@ -31,7 +33,7 @@ const exit = () => {
 };
 
 const createPlantCultivar = () => {
-  const data = <PlantCultivarDTO>{
+  const data = <PlantCultivarRequest>{
     name: name.value,
     cultivar: cultivar.value,
     species_id: species_id.value,
@@ -82,7 +84,7 @@ const createPlantCultivar = () => {
             class="form-select"
           >
             <option disabled :value="null">Please select one</option>
-            <option v-for="(id, name) in state.plantSpeciesIdentifiers" :key="name" :value="id">
+            <option v-for="(id, name) in species.plantSpeciesIdentifiers" :key="name" :value="id">
               {{ name }}
             </option>
           </select>

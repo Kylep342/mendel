@@ -4,7 +4,7 @@ import routes from '@/constants/routes';
 import { type JSONable } from '@/types/app';
 
 // Request interface | Front end -> Back end
-export interface PlantCultivarDTO {
+export interface PlantCultivarRequest {
   name: string;
   cultivar: string;
   species_id: string;
@@ -12,7 +12,7 @@ export interface PlantCultivarDTO {
 }
 
 // Response interface | Back end -> Front end
-export interface PlantCultivar extends PlantCultivarDTO {
+export interface PlantCultivar extends PlantCultivarRequest {
   id: string;
   created_at: string;
   updated_at: string;
@@ -29,7 +29,7 @@ export function usePlantCultivarAPI() {
     create: createItem
   } = useCreate<PlantCultivar>(routes.ROUTE_PLANT_CULTIVAR);
 
-  const createPlantCultivar = async (speciesData: PlantCultivarDTO): Promise<PlantCultivar | null> => {
+  const createPlantCultivar = async (speciesData: PlantCultivarRequest): Promise<PlantCultivar | null> => {
     return createItem(speciesData);
   };
 

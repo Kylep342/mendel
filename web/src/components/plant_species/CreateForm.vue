@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import constants from '../../constants/constants';
-import useMendelCoreStore from '@/stores/core';
-import type { PlantSpeciesDTO } from '@/components/plant_species/composables/useAPI';
+import usePlantSpeciesStore from './store';
+import type { PlantSpeciesRequest } from '@/components/plant_species/useAPI';
 
-const state = useMendelCoreStore();
+const state = usePlantSpeciesStore();
 
 const name = ref<string | null>(null);
 const taxon = ref<string | null>(null);
@@ -26,7 +26,7 @@ const exit = () => {
 };
 
 const createPlantSpecies = () => {
-  const data: PlantSpeciesDTO = {
+  const data: PlantSpeciesRequest = {
     name: name.value!,
     taxon: taxon.value!,
   };
