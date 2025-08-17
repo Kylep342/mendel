@@ -5,6 +5,7 @@ import constants from '../../constants/constants';
 import usePlantCultivarStore from './store';
 import usePlantSpeciesStore from '@/components/plant_species/store';
 import type { PlantCultivarRequest } from '@/components/plant_cultivar/useAPI';
+import { type JSONable } from '@/types/app';
 
 const species = usePlantSpeciesStore();
 const state = usePlantCultivarStore();
@@ -12,7 +13,7 @@ const state = usePlantCultivarStore();
 const name = ref<string | null>(null);
 const cultivar = ref<string | null>(null);
 const species_id = ref<string | null>(null);
-const genetics = ref<Record<string, any> | null>(null);
+const genetics = ref<Record<string, JSONable> | null>(null);
 
 const createButtonEnabled = computed<boolean>(
   () => [name.value, cultivar.value, species_id.value].every(
@@ -34,10 +35,10 @@ const exit = () => {
 
 const createPlantCultivar = () => {
   const data = <PlantCultivarRequest>{
-    name: name.value,
-    cultivar: cultivar.value,
-    species_id: species_id.value,
-    genetics: genetics.value || {},
+    name: name.value!,
+    cultivar: cultivar.value!,
+    species_id: species_id.value!,
+    genetics: genetics.value! || {},
   }
   state.submitNewPlantCultivar(data)
 };

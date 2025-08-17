@@ -23,14 +23,17 @@ onMounted(() => {
   </header>
 
   <main class="content-container">
+    <!-- Loading State -->
     <div v-if="state.isLoadingPlantCultivarList" class="text-center p-8">
       <span class="loading loading-lg loading-spinner text-primary"></span>
     </div>
 
+    <!-- Error State -->
     <div v-else-if="state.getPlantCultivarListError" class="p-4 my-4 text-red-700 bg-red-100 rounded-lg">
       <p><strong>Error:</strong> {{ state.getPlantCultivarListError }}</p>
     </div>
 
+    <!-- Data Display -->
     <div v-else-if="state.plantCultivarList && state.plantCultivarList.length > 0" class="cultivar-grid">
       <div v-for="cultivar in state.plantCultivarList" :key="cultivar.id" class="card bg-base-200 shadow-xl">
         <div class="card-body">
@@ -43,12 +46,13 @@ onMounted(() => {
       </div>
     </div>
 
+    <!-- Empty State -->
     <div v-else class="text-center p-8 text-neutral-500">
       <p>No plant cultivar found. Create one to get started!</p>
     </div>
   </main>
 
-  <div id="forms">
+  <div id="plant-cultivar-forms">
     <PlantCultivarForm :id="constants.ID_PLANT_CULTIVAR_FORM" />
   </div>
 </template>

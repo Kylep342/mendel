@@ -25,8 +25,8 @@ export function usePlantSpeciesAPI() {
     create: createItem
   } = useCreate<PlantSpecies>(routes.ROUTE_PLANT_SPECIES);
 
-  const createPlantSpecies = async (speciesData: PlantSpeciesRequest): Promise<PlantSpecies | null> => {
-    return createItem(speciesData);
+  const createPlantSpecies = async (params: PlantSpeciesRequest): Promise<PlantSpecies | null> => {
+    return createItem(params);
   };
 
   const {

@@ -15,23 +15,23 @@ const (
 	tablePlant = constants.SchemaMendelCore + ".plant"
 
 	queryCreatePlant = `
-		INSERT INTO ` + tablePlant + ` (cultivar_id, species_id, seed_id, pollen_id, generation, planted_at, harvested_at, genetics, labels)
+		INSERT INTO ` + tablePlant + ` (cultivar_id, species_id, seed_id, pollen_id, generation, created_at, updated_at, genetics, labels)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-		RETURNING id, planted_at`
+		RETURNING id, created_at`
 
 	queryListPlants = `
-		SELECT id, cultivar_id, species_id, seed_id, pollen_id, generation, planted_at, harvested_at, genetics, labels
+		SELECT id, cultivar_id, species_id, seed_id, pollen_id, generation, created_at, updated_at, genetics, labels
 		FROM ` + tablePlant
 
 	queryGetPlantByID = `
-		SELECT id, cultivar_id, species_id, seed_id, pollen_id, generation, planted_at, harvested_at, genetics, labels
+		SELECT id, cultivar_id, species_id, seed_id, pollen_id, generation, created_at, updated_at, genetics, labels
 		FROM ` + tablePlant + ` WHERE id = $1`
 
 	queryUpdatePlant = `
 		UPDATE ` + tablePlant + `
-		SET cultivar_id = $2, species_id = $3, seed_id = $4, pollen_id = $5, generation = $6, planted_at = $7, harvested_at = $8, genetics = $9, labels = $10
+		SET cultivar_id = $2, species_id = $3, seed_id = $4, pollen_id = $5, generation = $6, created_at = $7, updated_at = $8, genetics = $9, labels = $10
 		WHERE id = $1
-		RETURNING id, cultivar_id, species_id, seed_id, pollen_id, generation, planted_at, harvested_at, genetics, labels`
+		RETURNING id, cultivar_id, species_id, seed_id, pollen_id, generation, created_at, updated_at, genetics, labels`
 
 	queryDeletePlant = `DELETE FROM ` + tablePlant + ` WHERE id = $1`
 )
@@ -65,8 +65,8 @@ func (s *Store) GetAll(ctx context.Context) ([]Plant, error) {
 			&p.SeedID,
 			&p.PollenID,
 			&p.Generation,
-			&p.PlantedAt,
-			&p.HarvestedAt,
+			&p.CreatedAt,
+			&p.UpdatedAt,
 			&p.Genetics,
 			&p.Labels,
 		); err != nil {
@@ -92,8 +92,8 @@ func (s *Store) GetByID(ctx context.Context, id string) (Plant, error) {
 		&p.SeedID,
 		&p.PollenID,
 		&p.Generation,
-		&p.PlantedAt,
-		&p.HarvestedAt,
+		&p.CreatedAt,
+		&p.UpdatedAt,
 		&p.Genetics,
 		&p.Labels,
 	)
@@ -103,7 +103,7 @@ func (s *Store) GetByID(ctx context.Context, id string) (Plant, error) {
 // Create inserts a new plant record into the database.
 // It scans the RETURNING values back into the provided struct.
 func (s *Store) Create(ctx context.Context, p *Plant) error {
-	p.PlantedAt = sql.NullTime{Time: time.Now(), Valid: true}
+	p.CreatedAt = sql.NullTime{Time: time.Now(), Valid: true}
 
 	err := s.Conn.QueryRow(ctx, queryCreatePlant,
 		p.CultivarID,
@@ -111,11 +111,11 @@ func (s *Store) Create(ctx context.Context, p *Plant) error {
 		p.SeedID,
 		p.PollenID,
 		p.Generation,
-		p.PlantedAt,
-		p.HarvestedAt,
+		p.CreatedAt,
+		p.UpdatedAt,
 		p.Genetics,
 		p.Labels,
-	).Scan(&p.ID, &p.PlantedAt)
+	).Scan(&p.ID, &p.CreatedAt)
 
 	return err
 }
@@ -130,8 +130,8 @@ func (s *Store) Update(ctx context.Context, p *Plant) error {
 		p.SeedID,
 		p.PollenID,
 		p.Generation,
-		p.PlantedAt,
-		p.HarvestedAt,
+		p.CreatedAt,
+		p.UpdatedAt,
 		p.Genetics,
 		p.Labels,
 	).Scan(
@@ -141,8 +141,8 @@ func (s *Store) Update(ctx context.Context, p *Plant) error {
 		&p.SeedID,
 		&p.PollenID,
 		&p.Generation,
-		&p.PlantedAt,
-		&p.HarvestedAt,
+		&p.CreatedAt,
+		&p.UpdatedAt,
 		&p.Genetics,
 		&p.Labels,
 	)

@@ -1,40 +1,72 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
-import { type PlantCultivarRequest, usePlantCultivarAPI } from './useAPI';
+import {
+  type PlantCultivar,
+  type PlantCultivarRequest,
+  usePlantCultivarAPI
+} from './useAPI';
 
 export default defineStore('plantCultivarAPI', () => {
-    const {
-        isCreatingPlantCultivar,
-        createPlantCultivarError,
-        createPlantCultivar,
-        plantCultivarList,
-        isLoadingPlantCultivarList,
-        getPlantCultivarListError,
-        fetchAllPlantCultivar,
-    } = usePlantCultivarAPI();
+  // --- HTTP composable ---
+  const {
+    // Create
+    isCreatingPlantCultivar,
+    createPlantCultivarError,
+    createPlantCultivar,
+    // Get All
+    plantCultivarList,
+    isLoadingPlantCultivarList,
+    getPlantCultivarListError,
+    fetchAllPlantCultivar,
+  } = usePlantCultivarAPI();
 
-    const plantCultivarFormActive = ref<boolean>(false);
+  // --- State ---
+  const plantCultivarFormActive = ref<boolean>(false);
 
-    const plantCultivarFormTitle = computed(() => 'Creating a Plant Cultivar');
+  // --- Computed / Getters ---
+  const plantCultivarFormTitle = computed<string>(() => 'Creating a Plant Cultivar');
 
-    const showPlantCultivarForm = () => {
-        plantCultivarFormActive.value = true;
-    };
+  const plantCultivarIdentifiers = computed<Record<string, string>>(() => {
+    if (!plantCultivarList.value) {
+      return {};
+    }
 
-    const exitPlantCultivarForm = () => {
-        plantCultivarFormActive.value = false;
-        if (createPlantCultivarError.value) {
-            createPlantCultivarError.value = null;
-        }
-    };
+    const sortedCultivar = [...plantCultivarList.value].sort((a, b: PlantCultivar) => {
+      return a.name.localeCompare(b.name);
+    });
 
-    /**
-   * Orchestrates the creation of a new plantCultivar cultivar.
-   * Closes the form on success.
+    return sortedCultivar.reduce(
+      (acc: Record<string, string>, cultivar: PlantCultivar) => {
+        acc[cultivar.name] = cultivar.id;
+        return acc;
+      },
+      {},
+    );
+  });
+
+  // --- Form lifecycle ---
+  const showPlantCultivarForm = () => {
+    plantCultivarFormActive.value = true;
+  };
+
+  const exitPlantCultivarForm = () => {
+    plantCultivarFormActive.value = false;
+    if (createPlantCultivarError.value) {
+      createPlantCultivarError.value = null;
+    }
+  };
+
+  // --- HTTP methods ---
+  /**
+   * 
+   * submitNewPlantCultivar makes an HTTP POST Request
+   *  for the creation of a new plant cultivar.
+   *  Closes the form on success.
    * @param {PlantCultivarCultivarRequest} plantCultivarData The data for the new plantCultivar cultivar
+   * @returns {Promise<PlantCultivar | null>} the created plant cultivar
    */
-  const submitNewPlantCultivar = async (plantCultivarData: PlantCultivarRequest) => {
+  const submitNewPlantCultivar = async (plantCultivarData: PlantCultivarRequest): Promise<PlantCultivar | null> => {
     const newPlantCultivar = await createPlantCultivar(plantCultivarData);
     if (newPlantCultivar) {
       exitPlantCultivarForm();
@@ -48,12 +80,14 @@ export default defineStore('plantCultivarAPI', () => {
     return newPlantCultivar;
   };
 
-/**
-   *
-   * @param {boolean} force override flag to force fetching independent of caching logic
-   * @returns
-   */
-  const fetchAllPlantCultivarIfNeeded = async (forceFetch: boolean=false) => {
+  /**
+     *
+     * fetchAllPlantCultivarIfNeeded makes an HTTP GET Request
+     *  for all plant cultivars
+     * @param {boolean} force override flag to force fetching independent of caching logic
+     * @returns {PlantCultivar[]} Plant cultivar records in the database
+     */
+  const fetchAllPlantCultivarIfNeeded = async (forceFetch: boolean = false) => {
     if (!forceFetch) {
       // If the list already has data, don't fetch again.
       if (plantCultivarList.value && plantCultivarList.value.length > 0) {
@@ -75,6 +109,7 @@ export default defineStore('plantCultivarAPI', () => {
     isLoadingPlantCultivarList,
     plantCultivarFormActive,
     plantCultivarFormTitle,
+    plantCultivarIdentifiers,
     plantCultivarList,
     showPlantCultivarForm,
     submitNewPlantCultivar,

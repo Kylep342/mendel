@@ -1,38 +1,52 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
-import { type PlantRequest, usePlantAPI } from './useAPI';
+import {
+  type Plant,
+  type PlantRequest,
+  usePlantAPI
+} from './useAPI';
 
 export default defineStore('plantAPI', () => {
-    const {
-        isCreatingPlant,
-        createPlantError,
-        createPlant,
-        plantList,
-        isLoadingPlantList,
-        getPlantListError,
-        fetchAllPlant,
-    } = usePlantAPI();
+  // --- HTTP composable ---
+  const {
+    // Create
+    isCreatingPlant,
+    createPlantError,
+    createPlant,
+    // Get All
+    plantList,
+    isLoadingPlantList,
+    getPlantListError,
+    fetchAllPlant,
+  } = usePlantAPI();
 
-    const plantFormActive = ref<boolean>(false);
+  // --- State ---
+  const plantFormActive = ref<boolean>(false);
 
-    const plantFormTitle = computed(() => 'Creating a Plant');
+  // --- Computed / Getters
+  const plantFormTitle = computed(() => 'Creating a Plant');
 
-    const showPlantForm = () => {
-        plantFormActive.value = true;
-    };
+  // --- Form lifecycle
+  const showPlantForm = () => {
+    plantFormActive.value = true;
+  };
 
-    const exitPlantForm = () => {
-        plantFormActive.value = false;
-        if (createPlantError.value) {
-            createPlantError.value = null;
-        }
-    };
+  const exitPlantForm = () => {
+    plantFormActive.value = false;
+    if (createPlantError.value) {
+      createPlantError.value = null;
+    }
+  };
 
-    /**
-   * Orchestrates the creation of a new plant cultivar.
-   * Closes the form on success.
-   * @param {PlantCultivarRequest} plantData The data for the new plant cultivar
+  // --- HTTP methods ---
+  /**
+   * 
+   * submitNewPlant makes an HTTP POST Request
+   *  for the creation of a new plant.
+   *  Closes the form on success.
+   * @param {PlantRequest} plantData The data for the new plant 
+   * @returns {Promise<Plant | null>} the created plant
    */
   const submitNewPlant = async (plantData: PlantRequest) => {
     const newPlant = await createPlant(plantData);
@@ -48,12 +62,14 @@ export default defineStore('plantAPI', () => {
     return newPlant;
   };
 
-/**
-   *
-   * @param {boolean} force override flag to force fetching independent of caching logic
-   * @returns
-   */
-  const fetchAllPlantIfNeeded = async (forceFetch: boolean=false) => {
+  /**
+     *
+     * fetchAllPlantIfNeeded makes an HTTP GET Request
+     *  for all plants
+     * @param {boolean} force override flag to force fetching independent of caching logic
+     * @returns {Plant{}} Plant records in the database
+     */
+  const fetchAllPlantIfNeeded = async (forceFetch: boolean = false) => {
     if (!forceFetch) {
       // If the list already has data, don't fetch again.
       if (plantList.value && plantList.value.length > 0) {

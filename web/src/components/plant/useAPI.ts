@@ -17,8 +17,8 @@ export interface PlantRequest {
 export interface Plant extends PlantRequest {
   id: string;
   generation: number;
-  planted_at: string;
-  harvested_at: string;
+  created_at: string;
+  updated_at: string;
 }
 
 /**
@@ -31,8 +31,8 @@ export function usePlantAPI() {
     create: createItem
   } = useCreate<Plant>(routes.ROUTE_PLANT);
 
-  const createPlant = async (speciesData: PlantRequest): Promise<Plant | null> => {
-    return createItem(speciesData);
+  const createPlant = async (params: PlantRequest): Promise<Plant | null> => {
+    return createItem(params);
   };
 
   const {

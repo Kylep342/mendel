@@ -1,8 +1,93 @@
 <script setup lang="ts">
+import { computed, onMounted } from 'vue';
+
+import constants from '@/constants/constants';
+import usePlantStore from '@/components/plant/store';
+import PlantForm from '@/components/plant/CreateForm.vue';
+import { useModal } from '@/composables/useModal';
+
+const state = usePlantStore();
+
+useModal(computed(() => state.plantFormActive), constants.ID_PLANT_FORM);
+
+// Fetch the data when the component is first mounted
+onMounted(() => {
+  state.fetchAllPlant();
+});
 </script>
 
 <template>
-  <div>
-    <h1>Soy los plantos!</h1>
+  <header>
+    <h3>{{ constants.TITLE_PLANT_SPECIES }}</h3>
+    <base-button @click="state.showPlantForm">{{ constants.BTN_CREATE }}</base-button>
+  </header>
+
+  <main class="content-container">
+    <!-- Loading State -->
+    <div v-if="state.isLoadingPlantList" class="text-center p-8">
+      <span class="loading loading-lg loading-spinner text-primary"></span>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="state.getPlantListError" class="p-4 my-4 text-red-700 bg-red-100 rounded-lg">
+      <p><strong>Error:</strong> {{ state.getPlantListError }}</p>
+    </div>
+
+    <!-- Data Display -->
+    <div v-else-if="state.plantList && state.plantList.length > 0" class="-grid">
+      <div v-for="plant in state.plantList" :key="plant.id" class="card bg-base-200 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title">{{ plant.id }}</h2>
+          <p class="italic text-neutral-500">{{ plant.labels }}</p>
+          <div class="card-actions justify-end">
+            <button class="btn btn-primary btn-sm">View</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div v-else class="text-center p-8 text-neutral-500">
+      <p>No plants found. Create one to get started!</p>
+    </div>
+  </main>
+
+  <div id="plant--forms">
+    <PlantForm :id="constants.ID_PLANT_FORM" />
   </div>
 </template>
+
+<style scoped>
+header {
+  /* Core layout with Flexbox */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  /* Positioning */
+  position: fixed;
+  top: 4rem;
+  left: 0;
+  width: 100%;
+  z-index: 900;
+
+  /* Styling */
+  background-color: var(--secondary-color);
+  color: var(--text-on-secondary);
+  padding: 0 1.5rem;
+  height: 3rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.content-container {
+  padding-top: 8rem; /* Adjust based on header/navbar height */
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+</style>

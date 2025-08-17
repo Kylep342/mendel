@@ -77,8 +77,8 @@ CREATE TABLE
         seed_id UUID REFERENCES mendel_core.plant (id),
         pollen_id UUID REFERENCES mendel_core.plant (id),
         generation INT NOT NULL,
-        planted_at TIMESTAMP WITH TIME ZONE DEFAULT now (),
-        harvested_at TIMESTAMP WITH TIME ZONE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT now (),
+        updated_at TIMESTAMP WITH TIME ZONE,
         genetics JSONB NOT NULL DEFAULT '{}',
         labels JSONB NOT NULL DEFAULT '{}'
     );

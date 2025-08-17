@@ -26,7 +26,7 @@ const exit = () => {
 };
 
 const createPlantSpecies = () => {
-  const data: PlantSpeciesRequest = {
+  const data = <PlantSpeciesRequest>{
     name: name.value!,
     taxon: taxon.value!,
   };

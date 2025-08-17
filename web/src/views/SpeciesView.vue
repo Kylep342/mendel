@@ -52,7 +52,7 @@ onMounted(() => {
     </div>
   </main>
 
-  <div id="forms">
+  <div id="plant-species-forms">
     <PlantSpeciesForm :id="constants.ID_PLANT_SPECIES_FORM" />
   </div>
 </template>

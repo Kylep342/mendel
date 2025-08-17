@@ -1,7 +1,11 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
-import { type PlantSpeciesRequest, usePlantSpeciesAPI } from '@/components/plant_species/useAPI';
+import {
+  type PlantSpecies,
+  type PlantSpeciesRequest,
+  usePlantSpeciesAPI
+} from './useAPI';
 
 export default defineStore('usePlantSpeciesStore', () => {
   // --- HTTP composable ---
@@ -21,20 +25,24 @@ export default defineStore('usePlantSpeciesStore', () => {
   const plantSpeciesFormActive = ref<boolean>(false);
 
   // --- Computed / Getters ---
-  const plantSpeciesFormTitle = computed(() => 'Creating a Plant Species');
-  const plantSpeciesIdentifiers = computed(() => {
+  const plantSpeciesFormTitle = computed<string>(() => 'Creating a Plant Species');
+
+  const plantSpeciesIdentifiers = computed<Record<string, string>>(() => {
     if (!plantSpeciesList.value) {
       return {};
     }
 
-    const sortedSpecies = [...plantSpeciesList.value].sort((a, b) => {
+    const sortedSpecies = [...plantSpeciesList.value].sort((a, b: PlantSpecies) => {
       return a.name.localeCompare(b.name);
     });
 
-    return sortedSpecies.reduce((acc, species) => {
-      acc[species.name] = species.id;
-      return acc;
-    }, {} as Record<string, string>);
+    return sortedSpecies.reduce(
+      (acc: Record<string, string>, species: PlantSpecies) => {
+        acc[species.name] = species.id;
+        return acc;
+      },
+      {},
+    );
   });
 
 
@@ -57,8 +65,9 @@ export default defineStore('usePlantSpeciesStore', () => {
    *  for the creation of a new plant species.
    *  Closes the form on success.
    * @param {PlantSpeciesRequest} speciesData The data for the new plant species.
+   * @returns {Promise<PlantSpecies | null>} the created plant species
    */
-  const submitNewPlantSpecies = async (speciesData: PlantSpeciesRequest) => {
+  const submitNewPlantSpecies = async (speciesData: PlantSpeciesRequest): Promise<PlantSpecies | null> => {
     const newSpecies = await createPlantSpecies(speciesData);
     if (newSpecies) {
       exitPlantSpeciesForm();
@@ -92,6 +101,7 @@ export default defineStore('usePlantSpeciesStore', () => {
   };
 
     return {
+      createPlantSpecies,
       createPlantSpeciesError,
       exitPlantSpeciesForm,
       fetchAllPlantSpecies: fetchAllPlantSpeciesIfNeeded,

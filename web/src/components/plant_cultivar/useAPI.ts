@@ -29,8 +29,8 @@ export function usePlantCultivarAPI() {
     create: createItem
   } = useCreate<PlantCultivar>(routes.ROUTE_PLANT_CULTIVAR);
 
-  const createPlantCultivar = async (speciesData: PlantCultivarRequest): Promise<PlantCultivar | null> => {
-    return createItem(speciesData);
+  const createPlantCultivar = async (params: PlantCultivarRequest): Promise<PlantCultivar | null> => {
+    return createItem(params);
   };
 
   // --- Get All Logic ---
